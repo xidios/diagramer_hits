@@ -1,0 +1,18 @@
+﻿@model Diagramer.Models.Task;
+@{
+    ViewData["Title"] = "Task Page";
+}
+
+<div>
+    <h1>@Model.Name</h1>
+    <h2>Описание: @Model.Description</h2>
+    @if (@Model.Deadline is not null)
+    {
+        <h3>Срок сдачи до <u>@Model.Deadline.ToString()</u></h3>
+    }
+    @if (@Model.Diagram is not null)
+    {
+        //<a href='@Url.Action("", "Diagrammer", new { id = @Model.Diagram.Id, editable = false })'>Просмотреть диаграмму преподавателя</a>
+        <a href='@Url.RouteUrl("Diagrammer", new { id = @Model.Diagram.Id, editable = false })'>Просмотреть диаграмму преподавателя</a>
+    }
+</div>

@@ -1,0 +1,20 @@
+﻿@model List<Diagramer.Models.Task>;
+@{
+    ViewData["Title"] = "Task Page";
+}
+
+<div class="text-center">
+    <a asp-action="CreateTask">Create Task</a>
+</div>
+@foreach (var task in @Model)
+{
+    <div>
+        <h3>@Html.DisplayName(task.Name)</h3>
+        @if (task.Deadline != null)
+        {
+            <h4>Дедлайн: @task.Deadline.ToString();</h4>
+        }
+        <a href='@Url.Action("ViewTask",new {id = task.Id})' class="btn btn-primary" >Open</a>
+
+    </div>
+}
