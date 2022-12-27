@@ -1,0 +1,13 @@
+﻿@model Diagramer.Models.ViewModels.CreateSubjectViewModel;
+@{
+    ViewData["Title"] = "Task Page";
+}
+
+<form asp-action="AddSubject" asp-controller="Subject" method="post" enctype="multipart/form-data">
+    <p>
+        <input name="Name" type="text" placeholder="Название предмета" class="form-control"/>
+    </p>
+    <p>
+        <input type="submit" value="Добавить"/>
+    </p>
+</form>

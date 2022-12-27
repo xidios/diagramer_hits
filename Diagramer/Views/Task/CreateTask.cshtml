@@ -4,9 +4,10 @@
 }
 
 <form asp-action="CreateTask" asp-controller="Task" method="post" enctype="multipart/form-data">
+    <input name="Subject_id" type="hidden" value="@Model.Subject_id"/>
     <p>
-            <input name="Name" type="text" placeholder="Название" class="form-control"/>
-        </p>
+        <input name="Name" type="text" placeholder="Название" class="form-control"/>
+    </p>
     <p>
         <input name="Description" type="text" placeholder="Описание" class="form-control"/>
     </p>

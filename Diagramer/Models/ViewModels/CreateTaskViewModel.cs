@@ -2,6 +2,7 @@ namespace Diagramer.Models.ViewModels;
 
 public class CreateTaskViewModel
 {
+    public Guid Subject_id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public DateTime CreatedTime { get; set; } = DateTime.Now;
