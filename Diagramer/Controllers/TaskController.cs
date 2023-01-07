@@ -35,6 +35,7 @@ public class TaskController : Controller
     [Route("create_task", Name = "CreateTask")]
     public async Task<IActionResult> CreateTask(Guid subject_id)
     {
+        ViewBag.categories = await _context.Categories.ToListAsync();
         if (subject_id == null)
         {
             return NotFound();
@@ -100,7 +101,9 @@ public class TaskController : Controller
             var task = await _context.Tasks
                 .Include(t => t.Diagram)
                 .FirstOrDefaultAsync(t => t.Id == id);
-            var answer = await _context.Answers.FirstOrDefaultAsync(a => a.TaskId == task.Id && a.UserId == userIdGuid);
+            var answer = await _context.Answers
+                .Include(a=>a.Diagram)
+                .FirstOrDefaultAsync(a => a.TaskId == task.Id && a.UserId == userIdGuid);
             var model = new ViewTaskViewModel
             {
                 Task = task,
@@ -144,7 +147,10 @@ public class TaskController : Controller
                     TaskId = taskId,
                     User = user,
                     UserId = userIdGuid,
-                    Diagramm = _diagrammerService.ReturnTaskDiagramOrEmpty(task.Diagram?.XML)
+                    Diagram = new Diagram
+                    {
+                        XML = _diagrammerService.ReturnTaskDiagramOrEmpty(task.Diagram?.XML)
+                    }
                 };
                 task.Answers.Append(new_answer);
                 await _context.Answers.AddAsync(new_answer);

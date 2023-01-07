@@ -41,8 +41,7 @@ namespace Diagramer.Data.Migrations
                     b.Property<bool>("Completed")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Diagramm")
-                        .IsRequired()
+                    b.Property<Guid>("DiagramId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TaskId")
@@ -52,6 +51,8 @@ namespace Diagramer.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DiagramId");
 
                     b.HasIndex("TaskId");
 
@@ -372,6 +373,12 @@ namespace Diagramer.Data.Migrations
 
             modelBuilder.Entity("Diagramer.Models.Answer", b =>
                 {
+                    b.HasOne("Diagramer.Models.Diagram", "Diagram")
+                        .WithMany()
+                        .HasForeignKey("DiagramId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Diagramer.Models.Task", "Task")
                         .WithMany("Answers")
                         .HasForeignKey("TaskId")
@@ -384,6 +391,8 @@ namespace Diagramer.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Diagram");
+
                     b.Navigation("Task");
 
                     b.Navigation("User");
@@ -392,7 +401,7 @@ namespace Diagramer.Data.Migrations
             modelBuilder.Entity("Diagramer.Models.Task", b =>
                 {
                     b.HasOne("Diagramer.Models.Category", "Category")
-                        .WithMany()
+                        .WithMany("Tasks")
                         .HasForeignKey("CategoryId");
 
                     b.HasOne("Diagramer.Models.Diagram", "Diagram")
@@ -461,6 +470,11 @@ namespace Diagramer.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Diagramer.Models.Category", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("Diagramer.Models.Identity.ApplicationUser", b =>

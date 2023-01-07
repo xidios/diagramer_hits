@@ -1,8 +1,31 @@
+using System.Security.AccessControl;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Diagramer.Data;
 using Diagramer.Models.Identity;
 using Diagramer.Services;
+
+void InitRoles(WebApplicationBuilder builder, WebApplication app)
+{
+    using var serviceScope = app.Services.CreateScope();
+    var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+    var roles = builder.Configuration.GetSection("Roles").Get<List<string>>();
+    var rolesDB = context.Roles.ToList();
+    foreach (var role in roles)
+    {
+        var roleDB = rolesDB.FirstOrDefault(r => r.Name.ToLower() == role.ToLower());
+        if (roleDB == null)
+        {
+            context.Roles.Add(new IdentityRole<Guid>
+            {
+                Name = role,
+                NormalizedName = role.ToUpper()
+            });
+        }
+    }
+    context.SaveChanges();
+}
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +41,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDiagrammerService, DiagrammerService>();
 var app = builder.Build();
-
+InitRoles(builder, app);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

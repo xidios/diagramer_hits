@@ -17,10 +17,10 @@ public class DiagrammerController : Controller
         _context = context;
     }
 
-    [Route("{id:guid}", Name = "Diagrammer")]
-    public IActionResult Index(Guid id, bool editable = true)
+    [Route("{diagramId:guid}", Name = "Diagrammer")]
+    public IActionResult Index(Guid diagramId, bool editable = true)
     {
-        var diagram = _context.Diagrams.FirstOrDefault(d => d.Id == id);
+        var diagram = _context.Diagrams.FirstOrDefault(d => d.Id == diagramId);
         if (diagram == null)
         {
             return NotFound();

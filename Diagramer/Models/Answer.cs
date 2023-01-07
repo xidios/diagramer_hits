@@ -10,6 +10,6 @@ public class Answer
 
     public Guid TaskId { get; set; }
     public Models.Task Task { get; set; }
-    public String Diagramm { get; set; } = null;
+    public Diagram Diagram { get; set; }
     public bool Completed { get; set; } = false;
 }
