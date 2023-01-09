@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FX+Aep49zaolKPEvjLyJ8dc9BZ0tvETFPa8LHCVnaejMNsfEgbMuLQIftpmwGqyzhX4a+LLSFBH+aoyfwZlmXQ==",
+  "dgSpecHash": "8eugY+fn5TE8LSLvy49yvwpoXKDcRRm4Kv6YkBQwEPftDP1IEyaL0ME54KLzlYwaPHMaHOg2pvv4Vg9tu5DVzQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\redbu\\RiderProjects\\Diagramer\\Diagramer\\Diagramer.csproj",
+  "projectFilePath": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\Diagramer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\redbu\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\redbu\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\6.0.1\\microsoft.aspnetcore.cryptography.internal.6.0.1.nupkg.sha512",
@@ -43,7 +43,11 @@
     "C:\\Users\\redbu\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
     "C:\\Users\\redbu\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
     "C:\\Users\\redbu\\.nuget\\packages\\system.text.encodings.web\\6.0.0\\system.text.encodings.web.6.0.0.nupkg.sha512",
-    "C:\\Users\\redbu\\.nuget\\packages\\system.text.json\\6.0.0\\system.text.json.6.0.0.nupkg.sha512"
+    "C:\\Users\\redbu\\.nuget\\packages\\system.text.json\\6.0.0\\system.text.json.6.0.0.nupkg.sha512",
+    "C:\\Users\\redbu\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.12\\microsoft.netcore.app.ref.6.0.12.nupkg.sha512",
+    "C:\\Users\\redbu\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.12\\microsoft.windowsdesktop.app.ref.6.0.12.nupkg.sha512",
+    "C:\\Users\\redbu\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.12\\microsoft.aspnetcore.app.ref.6.0.12.nupkg.sha512",
+    "C:\\Users\\redbu\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.12\\microsoft.netcore.app.host.win-x64.6.0.12.nupkg.sha512"
   ],
   "logs": []
 }

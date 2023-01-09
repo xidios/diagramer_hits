@@ -5,88 +5,89 @@ build_property.UsingMicrosoftNETSdkWeb = true
 build_property.ProjectTypeGuids = 
 build_property.InvariantGlobalization = 
 build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Diagramer
 build_property.RootNamespace = Diagramer
-build_property.ProjectDir = C:\Users\redbu\RiderProjects\Diagramer\Diagramer\
+build_property.ProjectDir = C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\
 build_property.RazorLangVersion = 6.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\redbu\RiderProjects\Diagramer\Diagramer
+build_property.MSBuildProjectDirectory = C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer
 build_property._RazorSourceGeneratorDebug = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Areas/Identity/Pages/_ViewStart.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Areas/Identity/Pages/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Category/CreateCategory.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Category/CreateCategory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0ZWdvcnlcQ3JlYXRlQ2F0ZWdvcnkuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Category/Index.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Category/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0ZWdvcnlcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Category/OpenCategory.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Category/OpenCategory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0ZWdvcnlcT3BlbkNhdGVnb3J5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Diagrammer/Index.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Diagrammer/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlhZ3JhbW1lclxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Home/Index.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Home/Privacy.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Shared/Error.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Shared/_LoginPartial.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Shared/_LoginPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Subject/AddSubject.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Subject/AddSubject.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViamVjdFxBZGRTdWJqZWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Subject/Index.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Subject/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViamVjdFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Subject/OpenSubject.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Subject/OpenSubject.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViamVjdFxPcGVuU3ViamVjdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Task/CreateTask.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/CreateTask.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza1xDcmVhdGVUYXNrLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Task/Index.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Task/ViewTask.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/ViewTask.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza1xWaWV3VGFzay5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/_ViewImports.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/_ViewStart.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/redbu/RiderProjects/Diagramer/Diagramer/Views/Shared/_Layout.cshtml]
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-y2g61x5loz

@@ -1,0 +1,13 @@
+﻿@model List<Category>; 
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1>Предметы по категориям</h1>
+    <a asp-action="CreateCategory">Создать категорию</a>
+</div>
+@foreach (var category in @Model)
+{
+    <h2><a href='@Url.Action("OpenCategory", new {id = category.Id})'>@category.Name</a></h2>
+}
