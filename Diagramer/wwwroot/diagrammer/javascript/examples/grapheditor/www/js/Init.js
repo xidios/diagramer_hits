@@ -7,9 +7,11 @@ window.MAX_AREA = window.MAX_AREA || 15000 * 15000;
 
 wwwpath='javascript/examples/grapheditor/www/';
 // URLs for save and export
+window.NET_URL = "https://localhost:7058/diagrammer/";
+window.DIAGRAM_ID = "";
 window.EXPORT_URL = window.EXPORT_URL || '/export';
 window.SAVE_URL = window.SAVE_URL || '/save';
-window.OPEN_URL = window.OPEN_URL || '/open';
+window.OPEN_URL = window.OPEN_URL || 'javascript/examples/grapheditor/www/open';
 window.RESOURCES_PATH = window.RESOURCES_PATH || 'javascript/examples/grapheditor/www/resources';
 console.log(window.RESOURCES_PATH);
 window.RESOURCE_BASE = window.RESOURCE_BASE || window.RESOURCES_PATH + '/grapheditor';

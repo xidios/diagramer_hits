@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "+zZRiiQXCBO9fLoHKaJcjCE7ssyDjgk/uhahqJ/ZkAQ=",
+  "Hash": "Wao809FYjkDzZvqZEqNGzeckVC85Wg0z5KrYRLIiD6s=",
   "Source": "Diagramer",
   "BasePath": "_content/Diagramer",
   "Mode": "Default",
@@ -2973,23 +2973,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\diagrammer\\javascript\\examples\\schema.html"
-    },
-    {
-      "Identity": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\diagrammer\\javascript\\index.html",
-      "SourceId": "Diagramer",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\",
-      "BasePath": "_content/Diagramer",
-      "RelativePath": "diagrammer/javascript/index.html",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\diagrammer\\javascript\\index.html"
     },
     {
       "Identity": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\diagrammer\\javascript\\mxClient.js",

@@ -1,6 +1,7 @@
 ﻿@using System.Web
 @model Diagram;
 @{
+	Layout = null;
     ViewData["Title"] = "Diagrammer";
 	var xml = @Model.XML;
 }
@@ -84,15 +85,14 @@
 				// Updates action states which require a backend
 				if (!Editor.useLocalStorage)
 				{
-					mxUtils.post(OPEN_URL, '', mxUtils.bind(this, function(req)
-					{
-						var enabled = req.getStatus() != 404;
-						this.actions.get('open').setEnabled(enabled || Graph.fileSupport);
-						this.actions.get('import').setEnabled(enabled || Graph.fileSupport);
-						this.actions.get('save').setEnabled(enabled);
-						this.actions.get('saveAs').setEnabled(enabled);
-						this.actions.get('export').setEnabled(enabled);
-					}));
+					
+					var enabled = true;
+					this.actions.get('open').setEnabled(enabled || Graph.fileSupport);
+					this.actions.get('import').setEnabled(enabled || Graph.fileSupport);
+					this.actions.get('save').setEnabled(enabled);
+					this.actions.get('saveAs').setEnabled(enabled);
+					this.actions.get('export').setEnabled(enabled);
+					
 				}
 			};
 			
@@ -106,6 +106,7 @@
 			mxUtils.getAll([bundle, STYLE_PATH + '/default.xml'], function(xhr)
 			{
 				var xml = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@Model.XML))";
+				window.DIAGRAM_ID = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@Model.Id.ToString()))";
 				console.log(xml);
 				//var parser = new DOMParser();
 				//var xmlDoc = parser.parseFromString(xml,"text/xml");
