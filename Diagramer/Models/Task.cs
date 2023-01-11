@@ -13,7 +13,7 @@ public class Task
     public string? MarkDescription { get; set; } = null;
     public DateTime? LastResponse { get; set; } = null;
     public Diagram? Diagram { get; set; } = null;
-    public Category? Category { get; set; } = null;
+    public List<Category> Categories { get; set; } = new List<Category>();
     public bool IsVisible { get; set; } = false;
     public Subject Subject { get; set; }
     public List<Answer> Answers { get; set; } = new List<Answer>();

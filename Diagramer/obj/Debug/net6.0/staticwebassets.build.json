@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "Wao809FYjkDzZvqZEqNGzeckVC85Wg0z5KrYRLIiD6s=",
+  "Hash": "l9fQQUWW+kXG8MoBm6BFHRsRDLfD0JYrOobKFXYJqPc=",
   "Source": "Diagramer",
   "BasePath": "_content/Diagramer",
   "Mode": "Default",
@@ -6052,6 +6052,23 @@
       "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map"
     },
     {
+      "Identity": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-multiselect.css",
+      "SourceId": "Diagramer",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\",
+      "BasePath": "_content/Diagramer",
+      "RelativePath": "lib/bootstrap/dist/css/bootstrap-multiselect.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-multiselect.css"
+    },
+    {
       "Identity": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css",
       "SourceId": "Diagramer",
       "SourceType": "Discovered",
@@ -6458,6 +6475,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
+    },
+    {
+      "Identity": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap-multiselect.js",
+      "SourceId": "Diagramer",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\",
+      "BasePath": "_content/Diagramer",
+      "RelativePath": "lib/bootstrap/dist/js/bootstrap-multiselect.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap-multiselect.js"
     },
     {
       "Identity": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js",

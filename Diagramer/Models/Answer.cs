@@ -1,3 +1,4 @@
+using Diagramer.Models.Enums;
 using Diagramer.Models.Identity;
 
 namespace Diagramer.Models;
@@ -11,5 +12,5 @@ public class Answer
     public Guid TaskId { get; set; }
     public Models.Task Task { get; set; }
     public Diagram Diagram { get; set; }
-    public bool Completed { get; set; } = false;
+    public AnswerStatusEnum Status { get; set; } = AnswerStatusEnum.Created;
 }

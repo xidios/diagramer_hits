@@ -1,5 +1,6 @@
 using Diagramer.Data;
 using Diagramer.Models;
+using Diagramer.Models.Enums;
 using Diagramer.Models.Identity;
 using Diagramer.Models.ViewModels;
 using Diagramer.Services;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace Diagramer.Controllers;
 
@@ -35,7 +37,6 @@ public class TaskController : Controller
     [Route("create_task", Name = "CreateTask")]
     public async Task<IActionResult> CreateTask(Guid subject_id)
     {
-        ViewBag.categories = await _context.Categories.ToListAsync();
         if (subject_id == null)
         {
             return NotFound();
@@ -43,7 +44,8 @@ public class TaskController : Controller
 
         return View(new CreateTaskViewModel
         {
-            Subject_id = subject_id
+            Subject_id = subject_id,
+            Categories = _context.Categories.ToList()
         });
     }
 
@@ -56,6 +58,7 @@ public class TaskController : Controller
             return View(model);
         }
 
+        List<Category> categories = await _context.Categories.Where(c => model.CategoriesIds.Any(i => i == c.Id)).ToListAsync();
         var subject = await _context.Subjects.FirstOrDefaultAsync(s => s.Id == model.Subject_id);
         if (subject == null)
         {
@@ -78,7 +81,8 @@ public class TaskController : Controller
             Deadline = model.Deadline,
             IsVisible = model.IsVisible,
             Diagram = diagram,
-            Subject = subject
+            Subject = subject,
+            Categories = categories
         };
         subject.Tasks.Add(task);
         if (diagram is not null)
@@ -163,5 +167,35 @@ public class TaskController : Controller
         {
             return NotFound("User not found");
         }
+    }
+
+    [Route("send_to_review/{answerId:guid}")]
+    public async Task<IActionResult> SendAnswerToReview(Guid answerId)
+    {
+        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
+        if (answer == null)
+        {
+            return NotFound("Answer not found");
+        }
+
+        answer.Status = AnswerStatusEnum.Sent;
+        _context.Update(answer);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("ViewTask", new { id = answer.TaskId });
+    }
+
+    public async Task<IActionResult> DeleteAnswer(Guid answerId)
+    {
+        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
+        if (answer == null)
+        {
+            return NotFound("Answer not found");
+        }
+
+        var taskId = answer.TaskId;
+        _context.Remove(answer);
+        await _context.SaveChangesAsync();
+        
+        return RedirectToAction("ViewTask", new {id = taskId});
     }
 }

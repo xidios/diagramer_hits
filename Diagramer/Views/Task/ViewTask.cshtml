@@ -1,4 +1,5 @@
-﻿@model Diagramer.Models.ViewModels.ViewTaskViewModel;
+﻿@using Diagramer.Models.Enums
+@model Diagramer.Models.ViewModels.ViewTaskViewModel;
 @{
     ViewData["Title"] = "Task Page";
 }
@@ -19,13 +20,20 @@
     {
         <a href='@Url.Action("CreateAnswer", new { taskId = @Model.Task.Id })'>Создать диаграмму</a>
     }
-    else if (@Model.UserAnswer.Completed)
+    else if (@Model.UserAnswer.Status == AnswerStatusEnum.Rated || @Model.UserAnswer.Status == AnswerStatusEnum.UnderEvaluation)
     {
         <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.Diagram.Id, editable = false })'>Посмотреть диаграмму</a>
-        <a href="#">Отменить отправку</a>
     }
-    else if (!@Model.UserAnswer.Completed)
+    else if (@Model.UserAnswer.Status == AnswerStatusEnum.Finalize || @Model.UserAnswer.Status == AnswerStatusEnum.Created)
     {
         <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.Diagram.Id, editable = true })'>Редактировать диаграмму</a>
+        <br/>
+        <a href='@Url.Action("SendAnswerToReview", new { answerId = @Model.UserAnswer.Id })'>Отправить диаграмму на проверку</a>
+    }
+    else if (@Model.UserAnswer.Status == AnswerStatusEnum.Sent)
+    {
+        <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.Diagram.Id, editable = false })'>Посмотреть диаграмму</a>
+        <br/>
+        <a href="#">Отменить отправку</a>
     }
 </div>
