@@ -124,8 +124,3 @@ C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\refint\Di
 C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\Diagramer.pdb
 C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\Diagramer.genruntimeconfig.cache
 C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\ref\Diagramer.dll
-C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\staticwebassets\msbuild.Diagramer.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\staticwebassets\msbuild.build.Diagramer.props
-C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\staticwebassets\msbuild.buildMultiTargeting.Diagramer.props
-C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\staticwebassets\msbuild.buildTransitive.Diagramer.props
-C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\staticwebassets.pack.json

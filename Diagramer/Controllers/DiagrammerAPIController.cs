@@ -1,4 +1,5 @@
 using Diagramer.Data;
+using Diagramer.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,20 @@ public class DiagrammerAPIController : ControllerBase
         var diagram = await _context.Diagrams.FirstOrDefaultAsync(d => d.Id == diagramId);
         if (diagram == null)
         {
-            return "Diagram not found";
+            return StatusCode(StatusCodes.Status404NotFound,"Diagram not found");
+        }
+
+        var answer = await _context.Answers
+            .Include(a=>a.Diagram)
+            .FirstOrDefaultAsync(a => a.Diagram.Id == diagramId);
+        if (answer == null)
+        {
+            return  StatusCode(StatusCodes.Status404NotFound,"Answer not found");
+        }
+
+        if (answer.Status is AnswerStatusEnum.Rated or AnswerStatusEnum.UnderEvaluation or AnswerStatusEnum.Sent)
+        {
+            return StatusCode(StatusCodes.Status405MethodNotAllowed, "Answer not editable");
         }
         //TODO: валидация диаграммы?
         diagram.XML = diagramXML;

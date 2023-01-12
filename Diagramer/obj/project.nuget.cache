@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "8eugY+fn5TE8LSLvy49yvwpoXKDcRRm4Kv6YkBQwEPftDP1IEyaL0ME54KLzlYwaPHMaHOg2pvv4Vg9tu5DVzQ==",
+  "dgSpecHash": "b15lDJHg8yQus6UKk/HgVuW1bXpMFxrxP47ERTTYRD18L+0qfeHIZO8i8kSbi4QjQ7t2uZ4eiShGo9KIPPqkjg==",
   "success": true,
   "projectFilePath": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\Diagramer.csproj",
   "expectedPackageFiles": [
@@ -43,11 +43,7 @@
     "C:\\Users\\redbu\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
     "C:\\Users\\redbu\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
     "C:\\Users\\redbu\\.nuget\\packages\\system.text.encodings.web\\6.0.0\\system.text.encodings.web.6.0.0.nupkg.sha512",
-    "C:\\Users\\redbu\\.nuget\\packages\\system.text.json\\6.0.0\\system.text.json.6.0.0.nupkg.sha512",
-    "C:\\Users\\redbu\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.12\\microsoft.netcore.app.ref.6.0.12.nupkg.sha512",
-    "C:\\Users\\redbu\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.12\\microsoft.windowsdesktop.app.ref.6.0.12.nupkg.sha512",
-    "C:\\Users\\redbu\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.12\\microsoft.aspnetcore.app.ref.6.0.12.nupkg.sha512",
-    "C:\\Users\\redbu\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.12\\microsoft.netcore.app.host.win-x64.6.0.12.nupkg.sha512"
+    "C:\\Users\\redbu\\.nuget\\packages\\system.text.json\\6.0.0\\system.text.json.6.0.0.nupkg.sha512"
   ],
   "logs": []
 }

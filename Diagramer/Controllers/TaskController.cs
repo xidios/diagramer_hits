@@ -19,12 +19,14 @@ public class TaskController : Controller
     private ApplicationDbContext _context;
     private readonly IUserService _userService;
     private readonly IDiagrammerService _diagrammerService;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public TaskController(ApplicationDbContext context, IUserService userService,IDiagrammerService diagrammerService)
+    public TaskController(ApplicationDbContext context, IUserService userService, IDiagrammerService diagrammerService,UserManager<ApplicationUser> userManager)
     {
         _context = context;
         _userService = userService;
         _diagrammerService = diagrammerService;
+        _userManager = userManager;
     }
 
     [Route("")]
@@ -58,7 +60,8 @@ public class TaskController : Controller
             return View(model);
         }
 
-        List<Category> categories = await _context.Categories.Where(c => model.CategoriesIds.Any(i => i == c.Id)).ToListAsync();
+        List<Category> categories =
+            await _context.Categories.Where(c => model.CategoriesIds.Any(i => i == c.Id)).ToListAsync();
         var subject = await _context.Subjects.FirstOrDefaultAsync(s => s.Id == model.Subject_id);
         if (subject == null)
         {
@@ -99,6 +102,7 @@ public class TaskController : Controller
     [Route("{id:guid}")]
     public async Task<IActionResult> ViewTask(Guid id)
     {
+        var user = await _context.Users.FirstOrDefaultAsync(u=>u.Id== _userService.GetCurrentUserGuid(User));
         try
         {
             var userIdGuid = _userService.GetCurrentUserGuid(User);
@@ -106,7 +110,7 @@ public class TaskController : Controller
                 .Include(t => t.Diagram)
                 .FirstOrDefaultAsync(t => t.Id == id);
             var answer = await _context.Answers
-                .Include(a=>a.Diagram)
+                .Include(a => a.Diagram)
                 .FirstOrDefaultAsync(a => a.TaskId == task.Id && a.UserId == userIdGuid);
             var model = new ViewTaskViewModel
             {
@@ -161,7 +165,7 @@ public class TaskController : Controller
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("ViewTask", new {id = taskId});
+            return RedirectToAction("ViewTask", new { id = taskId });
         }
         catch (ArgumentNullException)
         {
@@ -184,6 +188,40 @@ public class TaskController : Controller
         return RedirectToAction("ViewTask", new { id = answer.TaskId });
     }
 
+    [Route("cancel_review/{answerId:guid}")]
+    public async Task<IActionResult> CancelAnswerToReview(Guid answerId)
+    {
+        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
+        if (answer == null)
+        {
+            return NotFound("Answer not found");
+        }
+
+        if (answer.Status is AnswerStatusEnum.Rated or AnswerStatusEnum.UnderEvaluation)
+        {
+            return BadRequest("Answer is not editable");
+        }
+
+        answer.Status = AnswerStatusEnum.InProgress;
+        _context.Update(answer);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("ViewTask", new { id = answer.TaskId });
+    }
+    [Route("start_review/{answerId:guid}")]
+    public async Task<IActionResult> StartAnswerReview(Guid answerId)
+    {
+        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
+        if (answer == null)
+        {
+            return NotFound("Answer not found");
+        }
+        
+        answer.Status = AnswerStatusEnum.UnderEvaluation;
+        _context.Update(answer);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("ViewTask", new { id = answer.TaskId });
+    }
+
     public async Task<IActionResult> DeleteAnswer(Guid answerId)
     {
         var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
@@ -195,7 +233,7 @@ public class TaskController : Controller
         var taskId = answer.TaskId;
         _context.Remove(answer);
         await _context.SaveChangesAsync();
-        
-        return RedirectToAction("ViewTask", new {id = taskId});
+
+        return RedirectToAction("ViewTask", new { id = taskId });
     }
 }

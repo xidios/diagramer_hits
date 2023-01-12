@@ -68,7 +68,7 @@ Actions.prototype.init = function () {
                 'Content-Type': 'application/json;charset=UTF-8'
             }
         })
-            .then(response => console.log('Success:', response.status));
+            .then(async response => console.log('Success:', response.status, await response.text()));
         console.log("diagram updated");
 
     }, null, null, Editor.ctrlKey + '+S').isEnabled = isGraphEnabled;

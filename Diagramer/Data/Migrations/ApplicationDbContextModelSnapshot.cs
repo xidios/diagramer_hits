@@ -29,7 +29,7 @@ namespace Diagramer.Data.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("ApplicationUserSubject");
+                    b.ToTable("ApplicationUserSubject", (string)null);
                 });
 
             modelBuilder.Entity("CategoryTask", b =>
@@ -44,7 +44,7 @@ namespace Diagramer.Data.Migrations
 
                     b.HasIndex("TasksId");
 
-                    b.ToTable("CategoryTask");
+                    b.ToTable("CategoryTask", (string)null);
                 });
 
             modelBuilder.Entity("Diagramer.Models.Answer", b =>
@@ -73,7 +73,7 @@ namespace Diagramer.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Answers");
+                    b.ToTable("Answers", (string)null);
                 });
 
             modelBuilder.Entity("Diagramer.Models.Category", b =>
@@ -88,7 +88,7 @@ namespace Diagramer.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Diagramer.Models.Diagram", b =>
@@ -103,7 +103,7 @@ namespace Diagramer.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Diagrams");
+                    b.ToTable("Diagrams", (string)null);
                 });
 
             modelBuilder.Entity("Diagramer.Models.Identity.ApplicationUser", b =>
@@ -186,7 +186,7 @@ namespace Diagramer.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subjects");
+                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("Diagramer.Models.Task", b =>
@@ -233,7 +233,7 @@ namespace Diagramer.Data.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>

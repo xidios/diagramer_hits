@@ -12,5 +12,5 @@ public class Answer
     public Guid TaskId { get; set; }
     public Models.Task Task { get; set; }
     public Diagram Diagram { get; set; }
-    public AnswerStatusEnum Status { get; set; } = AnswerStatusEnum.Created;
+    public AnswerStatusEnum Status { get; set; } = AnswerStatusEnum.InProgress;
 }
