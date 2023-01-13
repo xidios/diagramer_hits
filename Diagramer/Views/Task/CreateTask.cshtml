@@ -6,19 +6,21 @@
 <form asp-action="CreateTask" asp-controller="Task" method="post" enctype="multipart/form-data">
     <input name="Subject_id" type="hidden" value="@Model.Subject_id"/>
     <input name="Categories" type="hidden" value="@Model.Categories"/>
-    <select id="CategoriesIds"  class="select" multiple name="CategoriesIds">
-        <option disabled>Выберите несколько категорий</option>
-        @foreach (var category in @Model.Categories)
-        {
-            <option value="@category.Id">@category.Name</option>
-        }
-    </select>
-
+    <div class="form-group">
+        <label for="CategoriesIds">Категории</label>
+        <select multiple name="CategoriesIds" class="form-control" id="CategoriesIds">
+            <option disabled>Выберите несколько категорий</option>
+            @foreach (var category in @Model.Categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </select>
+    </div>
     <p>
-        <input name="Name" type="text" placeholder="Название" class="form-control"/>
+        <input name="Name" type="text" placeholder="Название" class="form-control" required/>
     </p>
     <p>
-        <input name="Description" type="text" placeholder="Описание" class="form-control"/>
+        <input name="Description" type="text" placeholder="Описание" class="form-control" required/>
     </p>
     <p>
         <label>Дедлайн</label><br/>

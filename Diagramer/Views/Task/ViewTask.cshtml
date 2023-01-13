@@ -19,35 +19,87 @@
     }
     @if (@Model.UserAnswer == null)
     {
-        <a href='@Url.Action("CreateAnswer", new { taskId = @Model.Task.Id })'>Создать диаграмму</a>
-    }
-    else if (@Model.UserAnswer.Status == AnswerStatusEnum.Rated)
-    {
-        <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.Diagram.Id, editable = false })'>Посмотреть диаграмму</a>
+        <a href='@Url.Action("CreateAnswer", "Answer", new { taskId = @Model.Task.Id })'>Создать диаграмму</a>
     }
     else if (@Model.UserAnswer.Status == AnswerStatusEnum.Finalize || @Model.UserAnswer.Status == AnswerStatusEnum.InProgress)
     {
+        @if (@Model.UserAnswer.Comment != null)
+        {
+            <h3>Комментарий:</h3>
+            <p>@Model.UserAnswer.Comment</p>
+        }
         <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.Diagram.Id, editable = true })'>Редактировать диаграмму</a>
         <br/>
-        <a href='@Url.Action("SendAnswerToReview", new { answerId = @Model.UserAnswer.Id })'>Отправить диаграмму на проверку</a>
+        <a href='@Url.Action("SendAnswerToReview", "Answer", new { answerId = @Model.UserAnswer.Id })'>Отправить диаграмму на проверку</a>
     }
     else if (@Model.UserAnswer.Status == AnswerStatusEnum.Sent)
     {
         @if (User.IsInRole(ApplicationRoleNames.Admin) || User.IsInRole(ApplicationRoleNames.Teacher))
         {
-            <a href='@Url.Action("StartAnswerReview", new { answerId = @Model.UserAnswer.Id })'>Начать проверку диаграммы студента</a>
+            <a href='@Url.Action("StartAnswerReview", "Answer", new { answerId = @Model.UserAnswer.Id })'>Начать проверку диаграммы студента</a>
             <br/>
         }
         <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.Diagram.Id, editable = false })'>Посмотреть диаграмму</a>
         <br/>
-        <a href='@Url.Action("CancelAnswerToReview", new { answerId = @Model.UserAnswer.Id })'>Отменить отправку</a>
+        <a href='@Url.Action("CancelAnswerToReview", "Answer", new { answerId = @Model.UserAnswer.Id })'>Отменить отправку</a>
     }
     else if (@Model.UserAnswer.Status == AnswerStatusEnum.UnderEvaluation)
     {
         <h3>Задание проверяется преподавателем</h3>
         @if (User.IsInRole(ApplicationRoleNames.Admin) || User.IsInRole(ApplicationRoleNames.Teacher))
         {
-            <a href='#'>Выставить оценку</a>
+            <a class="btn btn-outline-success mb-3" data-bs-toggle="collapse" href="#rateAnswer" role="button" aria-expanded="false" aria-controls="collapseExample">
+                Выставить оценку
+            </a>
+            <a class="btn btn-outline-warning mb-3" data-bs-toggle="collapse" href="#finalizeAnswer" role="button" aria-expanded="false" aria-controls="collapseExample">
+                Отправить на доработку
+            </a>
+            <form asp-action="RateAnswer" asp-controller="Answer" method="post" asp-route-answerId="@Model.UserAnswer.Id" enctype="multipart/form-data">
+                <div class="collapse" id="rateAnswer">
+                    <div class="row">
+                        <div class="card card-body">
+                            <div class="form-floating">
+                                <input class="form-control" name="Mark" placeholder="Оценка за задание" id="rateInput" type="number" step="any" required/>
+                                <label for="rateInput">Оценка</label>
+                            </div>
+                            <div class="form-floating mt-3">
+                                <textarea id="commentInput" name="Comment" type="text" placeholder="Комментарий к оценке" class="form-control"></textarea>
+                                <label for="commentInput">Комментарий к оценке</label>
+                            </div>
+                            <input class="btn btn-primary" type="submit" value="Оценить"/>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <br/>
+
+            <div class="collapse" id="finalizeAnswer">
+                <form asp-action="FinalizeAnswer" asp-controller="Answer" method="post" asp-route-answerId="@Model.UserAnswer.Id" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="card card-body">
+                            <div class="form-floating mt-3">
+                                <textarea id="commentInput" name="Comment" type="text" placeholder="Комментарий к оценке" class="form-control"></textarea>
+                                <label for="commentInput">Комментарий к доработке</label>
+                            </div>
+                            <input class="btn btn-primary" type="submit" value="Отправить"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <br/>
+            <a href="#">Отменить проверку</a>
         }
     }
+    else if (@Model.UserAnswer.Status == AnswerStatusEnum.Rated)
+    {
+        <h3>Оценка: @Model.UserAnswer.Mark</h3>
+        @if (@Model.UserAnswer.Comment != null)
+        {
+            <h3>Комментарий:</h3>
+            <p>@Model.UserAnswer.Comment</p>
+        }
+
+        <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.Diagram.Id, editable = false })'>Посмотреть диаграмму</a>
+    }
+
 </div>

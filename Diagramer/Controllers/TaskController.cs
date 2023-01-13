@@ -19,14 +19,13 @@ public class TaskController : Controller
     private ApplicationDbContext _context;
     private readonly IUserService _userService;
     private readonly IDiagrammerService _diagrammerService;
-    private readonly UserManager<ApplicationUser> _userManager;
 
-    public TaskController(ApplicationDbContext context, IUserService userService, IDiagrammerService diagrammerService,UserManager<ApplicationUser> userManager)
+    public TaskController(ApplicationDbContext context, IUserService userService, IDiagrammerService diagrammerService,
+        UserManager<ApplicationUser> userManager)
     {
         _context = context;
         _userService = userService;
         _diagrammerService = diagrammerService;
-        _userManager = userManager;
     }
 
     [Route("")]
@@ -102,7 +101,7 @@ public class TaskController : Controller
     [Route("{id:guid}")]
     public async Task<IActionResult> ViewTask(Guid id)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u=>u.Id== _userService.GetCurrentUserGuid(User));
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == _userService.GetCurrentUserGuid(User));
         try
         {
             var userIdGuid = _userService.GetCurrentUserGuid(User);
@@ -124,116 +123,6 @@ public class TaskController : Controller
             return NotFound();
         }
     }
-
-    //[HttpPost]
-    [Route("create_answer/{taskId:guid}")]
-    public async Task<IActionResult> CreateAnswer(Guid taskId)
-    {
-        try
-        {
-            var userIdGuid = _userService.GetCurrentUserGuid(User);
-            var task = await _context.Tasks
-                .Include(t => t.Diagram)
-                .FirstOrDefaultAsync(t => t.Id == taskId);
-            if (task == null)
-            {
-                return NotFound("Task not found");
-            }
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userIdGuid);
-            if (user == null)
-            {
-                return NotFound("User not found");
-            }
-
-            var answer = await _context.Answers.FirstOrDefaultAsync(a => a.TaskId == taskId && a.UserId == userIdGuid);
-            if (answer == null)
-            {
-                var new_answer = new Answer
-                {
-                    Task = task,
-                    TaskId = taskId,
-                    User = user,
-                    UserId = userIdGuid,
-                    Diagram = new Diagram
-                    {
-                        XML = _diagrammerService.ReturnTaskDiagramOrEmpty(task.Diagram?.XML)
-                    }
-                };
-                task.Answers.Append(new_answer);
-                await _context.Answers.AddAsync(new_answer);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction("ViewTask", new { id = taskId });
-        }
-        catch (ArgumentNullException)
-        {
-            return NotFound("User not found");
-        }
-    }
-
-    [Route("send_to_review/{answerId:guid}")]
-    public async Task<IActionResult> SendAnswerToReview(Guid answerId)
-    {
-        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
-        if (answer == null)
-        {
-            return NotFound("Answer not found");
-        }
-
-        answer.Status = AnswerStatusEnum.Sent;
-        _context.Update(answer);
-        await _context.SaveChangesAsync();
-        return RedirectToAction("ViewTask", new { id = answer.TaskId });
-    }
-
-    [Route("cancel_review/{answerId:guid}")]
-    public async Task<IActionResult> CancelAnswerToReview(Guid answerId)
-    {
-        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
-        if (answer == null)
-        {
-            return NotFound("Answer not found");
-        }
-
-        if (answer.Status is AnswerStatusEnum.Rated or AnswerStatusEnum.UnderEvaluation)
-        {
-            return BadRequest("Answer is not editable");
-        }
-
-        answer.Status = AnswerStatusEnum.InProgress;
-        _context.Update(answer);
-        await _context.SaveChangesAsync();
-        return RedirectToAction("ViewTask", new { id = answer.TaskId });
-    }
-    [Route("start_review/{answerId:guid}")]
-    public async Task<IActionResult> StartAnswerReview(Guid answerId)
-    {
-        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
-        if (answer == null)
-        {
-            return NotFound("Answer not found");
-        }
-        
-        answer.Status = AnswerStatusEnum.UnderEvaluation;
-        _context.Update(answer);
-        await _context.SaveChangesAsync();
-        return RedirectToAction("ViewTask", new { id = answer.TaskId });
-    }
-
-    public async Task<IActionResult> DeleteAnswer(Guid answerId)
-    {
-        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
-        if (answer == null)
-        {
-            return NotFound("Answer not found");
-        }
-
-        var taskId = answer.TaskId;
-        _context.Remove(answer);
-        await _context.SaveChangesAsync();
-
-        return RedirectToAction("ViewTask", new { id = taskId });
-    }
+    
+    
 }
