@@ -69,7 +69,6 @@ Actions.prototype.init = function () {
             }
         })
             .then(async response => console.log('Success:', response.status, await response.text()));
-        console.log("diagram updated");
 
     }, null, null, Editor.ctrlKey + '+S').isEnabled = isGraphEnabled;
     this.addAction('saveAs...', function () {

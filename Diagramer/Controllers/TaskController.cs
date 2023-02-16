@@ -109,7 +109,8 @@ public class TaskController : Controller
                 .Include(t => t.Diagram)
                 .FirstOrDefaultAsync(t => t.Id == id);
             var answer = await _context.Answers
-                .Include(a => a.Diagram)
+                .Include(a => a.StudentDiagram)
+                .Include(d=>d.TeacherDiagram)
                 .FirstOrDefaultAsync(a => a.TaskId == task.Id && a.UserId == userIdGuid);
             var model = new ViewTaskViewModel
             {
@@ -122,6 +123,30 @@ public class TaskController : Controller
         {
             return NotFound();
         }
+    }
+    
+    [Route("change_visibility/{task_id:guid}")]
+    public async Task<IActionResult> ChangeTaskVisibility(Guid task_id)
+    {
+        var task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == task_id);
+        if (task == null)
+        {
+            return NotFound("Task not found");
+        }
+
+        task.IsVisible = !task.IsVisible;
+        _context.Update(task);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("ViewTask", new { id = task_id });
+    }
+    [HttpGet]
+    [Route("{task_id:guid}/answers")]
+    public async Task<IActionResult> ViewAnswersOnTask(Guid task_id)
+    {
+        var answers = await _context.Answers.Where(a => a.TaskId == task_id)
+            .Include(a=>a.User)
+            .ToListAsync();
+        return View(answers);
     }
     
     

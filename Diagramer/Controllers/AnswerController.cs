@@ -18,13 +18,29 @@ public class AnswerController : Controller
     private readonly IUserService _userService;
     private readonly IDiagrammerService _diagrammerService;
 
-    public AnswerController(ApplicationDbContext context, IUserService userService, IDiagrammerService diagrammerService)
+    public AnswerController(ApplicationDbContext context, IUserService userService,
+        IDiagrammerService diagrammerService)
     {
         _context = context;
         _userService = userService;
         _diagrammerService = diagrammerService;
     }
-    
+
+    [Route("{answerId:guid}")]
+    public async Task<IActionResult> Index(Guid answerId)
+    {
+        var answer = await _context.Answers
+            .Include(a => a.StudentDiagram)
+            .Include(a => a.TeacherDiagram)
+            .FirstOrDefaultAsync(a => a.Id == answerId);
+        if (answer == null)
+        {
+            return NotFound("Answer not found");
+        }
+
+        return View(answer);
+    }
+
     [Route("create/{taskId:guid}")]
     public async Task<IActionResult> CreateAnswer(Guid taskId)
     {
@@ -54,17 +70,17 @@ public class AnswerController : Controller
                     TaskId = taskId,
                     User = user,
                     UserId = userIdGuid,
-                    Diagram = new Diagram
+                    StudentDiagram = new Diagram
                     {
                         XML = _diagrammerService.ReturnTaskDiagramOrEmpty(task.Diagram?.XML)
                     }
                 };
-                task.Answers.Add(new_answer);
+                //task.Answers.Add(new_answer);
                 await _context.Answers.AddAsync(new_answer);
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("ViewTask","Task", new { id = taskId });
+            return RedirectToAction("ViewTask", "Task", new { id = taskId });
         }
         catch (ArgumentNullException)
         {
@@ -73,7 +89,7 @@ public class AnswerController : Controller
     }
 
     [Route("send_to_review/{answerId:guid}")]
-    public async Task<IActionResult> SendAnswerToReview(Guid answerId)
+    public async Task<IActionResult> SubmitAnswerForReview(Guid answerId)
     {
         var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
         if (answer == null)
@@ -84,11 +100,11 @@ public class AnswerController : Controller
         answer.Status = AnswerStatusEnum.Sent;
         _context.Update(answer);
         await _context.SaveChangesAsync();
-        return RedirectToAction("ViewTask","Task", new { id = answer.TaskId });
+        return RedirectToAction("ViewTask", "Task", new { id = answer.TaskId });
     }
 
-    [Route("cancel_review/{answerId:guid}")]
-    public async Task<IActionResult> CancelAnswerToReview(Guid answerId)
+    [Route("cancel_answer_submission/{answerId:guid}")]
+    public async Task<IActionResult> CancelAnswerSubmission(Guid answerId)
     {
         var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
         if (answer == null)
@@ -104,8 +120,9 @@ public class AnswerController : Controller
         answer.Status = AnswerStatusEnum.InProgress;
         _context.Update(answer);
         await _context.SaveChangesAsync();
-        return RedirectToAction("ViewTask","Task", new { id = answer.TaskId });
+        return RedirectToAction("ViewTask", "Task", new { id = answer.TaskId });
     }
+
     [Route("start_review/{answerId:guid}")]
     public async Task<IActionResult> StartAnswerReview(Guid answerId)
     {
@@ -114,11 +131,26 @@ public class AnswerController : Controller
         {
             return NotFound("Answer not found");
         }
-        
+
         answer.Status = AnswerStatusEnum.UnderEvaluation;
         _context.Update(answer);
         await _context.SaveChangesAsync();
-        return RedirectToAction("ViewTask","Task", new { id = answer.TaskId });
+        return RedirectToAction("Index",  new { answerId = answer.Id });
+    }
+
+    [Route("cancel_review/{answerId:guid}")]
+    public async Task<IActionResult> CancelAnswerReview(Guid answerId)
+    {
+        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
+        if (answer == null)
+        {
+            return NotFound("Answer not found");
+        }
+
+        answer.Status = AnswerStatusEnum.Sent;
+        _context.Update(answer);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("Index",  new { answerId = answer.Id });
     }
 
     [HttpPost]
@@ -136,8 +168,9 @@ public class AnswerController : Controller
         answer.Status = AnswerStatusEnum.Rated;
         _context.Update(answer);
         await _context.SaveChangesAsync();
-        return RedirectToAction("ViewTask","Task", new { id = answer.TaskId });
+        return RedirectToAction("Index",  new { answerId = answer.Id });
     }
+
     [HttpPost]
     [Route("finalize/{answerId:guid}")]
     public async Task<IActionResult> FinalizeAnswer(Guid answerId, string? Comment)
@@ -147,13 +180,41 @@ public class AnswerController : Controller
         {
             return NotFound("Answer not found");
         }
-        
+
         answer.Comment = Comment;
         answer.Status = AnswerStatusEnum.Finalize;
         _context.Update(answer);
         await _context.SaveChangesAsync();
-        return RedirectToAction("ViewTask","Task", new { id = answer.TaskId });
+        return RedirectToAction("Index",  new { answerId = answer.Id });
     }
+
+    [Route("make_edits_in_student_answer/{answerId:guid}")]
+    public async Task<IActionResult> MakeEditsInStudentAnswer(Guid answerId)
+    {
+        var answer = await _context.Answers
+            .Include(d => d.StudentDiagram)
+            .Include(d => d.TeacherDiagram)
+            .FirstOrDefaultAsync(a => a.Id == answerId);
+        if (answer == null)
+        {
+            return NotFound("Answer not found");
+        }
+
+        if (answer.TeacherDiagram == null)
+        {
+            answer.TeacherDiagram = new Diagram
+            {
+                XML = answer.StudentDiagram.XML
+            };
+            await _context.Diagrams.AddAsync(answer.TeacherDiagram);
+            _context.Update(answer);
+            await _context.SaveChangesAsync();
+        }
+
+
+        return RedirectToRoute("Diagrammer", new { diagramId = answer.TeacherDiagram.Id, editable = true });
+    }
+
 
     public async Task<IActionResult> DeleteAnswer(Guid answerId)
     {
@@ -167,7 +228,6 @@ public class AnswerController : Controller
         _context.Remove(answer);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("ViewTask","Task", new { id = taskId });
+        return RedirectToAction("ViewTask", "Task", new { id = taskId });
     }
-    
 }

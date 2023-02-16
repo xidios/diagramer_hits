@@ -1,0 +1,27 @@
+﻿@using Task = Diagramer.Models.Task
+@using Diagramer.Models.Identity
+@model List<Answer>;
+@{
+    ViewData["Title"] = "Task Page";
+
+    string nameOfUser(ApplicationUser user)
+    {
+        if (user.Name == null)
+            return $"Имя не указано, почта: {user.Email}";
+        return user.Name;
+    }
+}
+
+<div>
+    <h2>Ответы студентов</h2>
+    @foreach (var answer in @Model)
+    {
+        <div class="card w-75">
+            <div class="card-body">
+                <h5 class="card-title">@nameOfUser(answer.User)</h5>
+                <a href='@Url.Action("Index","Answer",new {answerId = answer.Id})' class="btn btn-primary">Открыть ответ</a>
+            </div>
+        </div>
+    }
+
+</div>
