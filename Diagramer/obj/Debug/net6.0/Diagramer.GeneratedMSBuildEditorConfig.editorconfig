@@ -71,12 +71,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViamVjdFxPcGVuU3ViamVjdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/AddGroupsToTask.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza1xBZGRHcm91cHNUb1Rhc2suY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/CreateTask.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza1xDcmVhdGVUYXNrLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/EditTask.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza1xFZGl0VGFzay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/TaskGroups.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza1xUYXNrR3JvdXBzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/ViewAnswersOnTask.cshtml]
@@ -85,6 +97,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Task/ViewTask.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza1xWaWV3VGFzay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Users/CreateGroup.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcQ3JlYXRlR3JvdXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Users/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/Users/ListOfGroups.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcTGlzdE9mR3JvdXBzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/redbu/RiderProjects/diagramer_hits/Diagramer/Views/_ViewImports.cshtml]

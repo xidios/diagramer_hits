@@ -1,0 +1,25 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Diagramer.Models.Task;
+@{
+    ViewData["Title"] = "Группы задания";
+}
+
+<div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">@Model.Name</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+                <a class="btn btn-sm btn-outline-success" href='@Url.Action("AddGroupsToTask",new {task_id = @Model.Id})'>Добавить группы</a>
+            </div>
+        </div>
+
+    </div>
+    @foreach (var group in @Model.Groups)
+    {
+        <div>
+            <h3>@Html.DisplayName(group.Name)</h3>
+            <a href='@Url.Action("RemoveGroupFromTask", new { task_id = @Model.Id, group_id = group.Id })' class="btn btn-primary">Удалить</a>
+        </div>
+    }
+</div>

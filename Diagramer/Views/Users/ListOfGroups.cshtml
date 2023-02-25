@@ -1,0 +1,15 @@
+@model List<Diagramer.Models.Group>;
+@{
+    ViewData["Title"] = "Список групп";
+}
+
+<div class="text-center">
+    <a asp-action="CreateGroup">Создать группу</a>
+</div>
+@foreach (var group in @Model)
+{
+    <div>
+        <h3>@Html.DisplayName(group.Name)</h3>
+        @* <a href='@Url.Action("ViewTask", new { id = task.Id })' class="btn btn-primary">Open</a> *@
+    </div>
+}

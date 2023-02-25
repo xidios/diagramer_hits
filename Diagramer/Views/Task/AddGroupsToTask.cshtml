@@ -1,0 +1,23 @@
+@model Diagramer.Models.ViewModels.AddGroupsToTaskViewModel;
+@{
+    ViewData["Title"] = "Добавить группы";
+}
+
+
+<form asp-action="AddGroupsToTask" asp-controller="Task" method="post" enctype="multipart/form-data">
+    <input name="TaskId" type="hidden" value="@Model.TaskId"/>
+    <input name="Groups" type="hidden" value="@Model.Groups"/>
+    <div class="form-group">
+        <label for="SelectedGroupsId">Группы</label>
+        <select multiple name="SelectedGroupsId" class="form-control" id="SelectedGroupsId">
+            <option disabled>Выберите несколько групп</option>
+            @foreach (var group in @Model.Groups)
+            {
+                <option value="@group.Id">@group.Name</option>
+            }
+        </select>
+    </div>
+    <p>
+        <input type="submit" value="Добавить"/>
+    </p>
+</form>

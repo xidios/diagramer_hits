@@ -1,0 +1,22 @@
+﻿@using Diagramer.Models.Enums
+@using Diagramer.Configuration
+@using Task = Diagramer.Models.Task
+@model List<Diagramer.Models.Identity.ApplicationUser>;
+@{
+    ViewData["Title"] = "Пользователи";
+
+}
+
+<div>
+
+    @foreach (var user in @Model)
+    {
+        <div class="card w-75">
+            <div class="card-body">
+                <h5 class="card-title">@user.Name @user.Email</h5>
+                @* <a href='@Url.Action("Index", "Answer", new { answerId = answer.Id })' class="btn btn-primary">Открыть ответ</a> *@
+            </div>
+        </div>
+    }
+
+</div>

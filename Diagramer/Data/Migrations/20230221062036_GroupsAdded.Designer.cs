@@ -3,6 +3,7 @@ using System;
 using Diagramer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Diagramer.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230221062036_GroupsAdded")]
+    partial class GroupsAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
@@ -249,9 +251,6 @@ namespace Diagramer.Data.Migrations
                     b.Property<Guid?>("DiagramId")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsGroupTask")
-                        .HasColumnType("INTEGER");
-
                     b.Property<bool>("IsVisible")
                         .HasColumnType("INTEGER");
 
@@ -278,21 +277,6 @@ namespace Diagramer.Data.Migrations
                     b.HasIndex("SubjectId");
 
                     b.ToTable("Tasks");
-                });
-
-            modelBuilder.Entity("GroupTask", b =>
-                {
-                    b.Property<Guid>("GroupsId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("TasksId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("GroupsId", "TasksId");
-
-                    b.HasIndex("TasksId");
-
-                    b.ToTable("GroupTask");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -518,21 +502,6 @@ namespace Diagramer.Data.Migrations
                     b.Navigation("Diagram");
 
                     b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("GroupTask", b =>
-                {
-                    b.HasOne("Diagramer.Models.Group", null)
-                        .WithMany()
-                        .HasForeignKey("GroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Diagramer.Models.Task", null)
-                        .WithMany()
-                        .HasForeignKey("TasksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

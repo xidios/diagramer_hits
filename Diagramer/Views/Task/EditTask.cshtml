@@ -1,0 +1,50 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Diagramer.Models.ViewModels.EditTaskViewModel;
+@{
+    ViewData["Title"] = "Task Page";
+}
+
+<form asp-action="EditTask" asp-controller="Task" method="post" enctype="multipart/form-data">
+    <input name="TaskId" type="hidden" value="@Model.TaskId"/>
+    <input name="Categories" type="hidden" value="@Model.Categories"/>
+    <input name="SelectedCategories" type="hidden" value="@Model.SelectedCategories"/>
+    <div class="form-group">
+        <label for="CategoriesIds">Категории</label>
+        <select multiple name="CategoriesIds" class="form-control" id="CategoriesIds">
+            <option disabled>Выберите несколько категорий</option>
+            @foreach (var category in @Model.Categories)
+            {
+                @if (@Model.SelectedCategories.Any(c => c.Id == category.Id))
+                {
+                    <option value="@category.Id" selected>@category.Name</option>
+                }
+                else
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+                
+            }
+        </select>
+    </div>
+    <p>
+        <input name="Name" type="text" placeholder="Название" class="form-control" value="@Model.Name" required/>
+    </p>
+    <p>
+        <input name="Description" type="text" placeholder="Описание" class="form-control" value="@Model.Description" required/>
+    </p>
+    <p>
+        <label>Дедлайн</label><br/>
+        <input name="Deadline" type="date" placeholder="Дедлайн" class="form-control" value='@Model.Deadline?.ToString("yyyy-MM-dd")'/>
+    </p>
+    <p>
+        <textarea name="Diagram" type="text" placeholder="Диаграмма преподавателя" class="form-control">@Model.Diagram</textarea>
+    </p>
+    <p>
+        <label>Видно студентам?</label>
+        <input name="IsVisible" type="checkbox" value="@Model.IsVisible"/>
+    </p>
+    <p>
+        <input type="submit" value="Изменить"/>
+    </p>
+</form>

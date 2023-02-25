@@ -8,18 +8,32 @@
 }
 
 <div>
-    @if (User.IsInRole("Teacher") || User.IsInRole("Admin"))
-    {
-        <p>@(Model.Task.IsVisible == true ? "Задание открыто студентам" : "Задание скрыто")</p>
-        <a class="btn btn-outline-dark" href='@Url.Action("ChangeTaskVisibility", new { task_id = @Model.Task.Id })'>Изменить видимость задания для студентов</a>
-        <a class="btn btn-outline-secondary" href='@Url.Action("ViewAnswersOnTask", new { task_id = @Model.Task.Id })'>Просмотреть ответы студентов</a>
-    }
-    <h1>@Model.Task.Name</h1>
-    <h2>Описание: @Model.Task.Description</h2>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">@Model.Task.Name</h1>
+
+        @if (User.IsInRole("Teacher") || User.IsInRole("Admin"))
+        {
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group mr-2">
+                    <button class="btn btn-sm btn-outline-secondary" disabled>@(Model.Task.IsVisible == true ? "открыто" : "скрыто")</button>
+                    <a class="btn btn-sm btn-outline-dark" href='@Url.Action("ChangeTaskVisibility", new { task_id = @Model.Task.Id })'>Изменить видимость задания для студентов</a>
+                    <a class="btn btn-sm btn-outline-dark" href='@Url.Action("ViewAnswersOnTask", new { task_id = @Model.Task.Id })'>Просмотреть ответы студентов</a>
+                    @if (@Model.Task.IsGroupTask)
+                    {
+                        <a class="btn btn-sm btn-outline-dark" href='@Url.Action("TaskGroups", new { task_id = @Model.Task.Id })'>Группы</a>
+                    }
+                    <a class="btn btn-sm btn-outline-success" href='@Url.Action("EditTask", new { task_id = @Model.Task.Id })'>Редактировать задание</a>
+                </div>
+            </div>
+        }
+
+    </div>
+    <span>@Model.Task.Description</span>
 
     @if (@Model.UserAnswer?.Comment != null)
     {
-        <h3>Комментарий:</h3>
+        <hr>
+        <h2>Комментарий:</h2>
         <p>@Model.UserAnswer.Comment</p>
     }
     @if (@Model.Task.Deadline is not null)
@@ -46,7 +60,6 @@
     }
     else if (@Model.UserAnswer.Status == AnswerStatusEnum.Sent)
     {
-
         <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.StudentDiagram.Id, editable = false })'>Посмотреть диаграмму</a>
         <br/>
         <a href='@Url.Action("CancelAnswerSubmission", "Answer", new { answerId = @Model.UserAnswer.Id })'>Отменить отправку</a>
@@ -54,7 +67,6 @@
     else if (@Model.UserAnswer.Status == AnswerStatusEnum.UnderEvaluation)
     {
         <h3>Задание проверяется преподавателем</h3>
-       
     }
     else if (@Model.UserAnswer.Status == AnswerStatusEnum.Rated)
     {

@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
     public DbSet<Category> Categories { get; set; }
     public DbSet<Subject> Subjects { get; set; }
     public DbSet<Answer> Answers { get; set; }
+    public DbSet<Group> Groups { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

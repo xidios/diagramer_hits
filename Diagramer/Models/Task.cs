@@ -15,6 +15,8 @@ public class Task
     public Diagram? Diagram { get; set; } = null;
     public List<Category> Categories { get; set; } = new List<Category>();
     public bool IsVisible { get; set; } = false;
+    public bool IsGroupTask { get; set; } = false;
     public Subject Subject { get; set; }
     public List<Answer> Answers { get; set; } = new List<Answer>();
+    public List<Group> Groups { get; set; } = new List<Group>();
 }

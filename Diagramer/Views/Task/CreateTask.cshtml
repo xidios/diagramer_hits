@@ -4,7 +4,7 @@
 }
 
 <form asp-action="CreateTask" asp-controller="Task" method="post" enctype="multipart/form-data">
-    <input name="Subject_id" type="hidden" value="@Model.Subject_id"/>
+    <input name="SubjectId" type="hidden" value="@Model.SubjectId"/>
     <input name="Categories" type="hidden" value="@Model.Categories"/>
     <div class="form-group">
         <label for="CategoriesIds">Категории</label>
@@ -30,8 +30,12 @@
         <textarea name="Diagram" type="text" placeholder="Диаграмма преподавателя" class="form-control"></textarea>
     </p>
     <p>
+        <label>Групповое задание?</label>
+        @Html.EditorFor(m => m.IsGroupTask)
+    </p>
+    <p>
         <label>Видно студентам?</label>
-        <input name="IsVisible" type="checkbox" value="false"/>
+        @Html.EditorFor(m => m.IsVisible)
     </p>
     <p>
         <input type="submit" value="Добавить"/>
