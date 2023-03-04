@@ -4,8 +4,7 @@
 @model List<Answer>;
 @{
     ViewData["Title"] = "Task Page";
-
-
+    
 }
 
 <div>
@@ -14,8 +13,15 @@
     {
         <div class="card w-75">
             <div class="card-body">
-                <h5 class="card-title">@HTMLHelpers.NameOfUser(answer.User)</h5>
-                <a href='@Url.Action("Index","Answer",new {answerId = answer.Id})' class="btn btn-primary">Открыть ответ</a>
+                @if (answer.User == null)
+                {
+                    <h5 class="card-title">@answer.Group.Name</h5>
+                }
+                else
+                {
+                    <h5 class="card-title">@HTMLHelpers.NameOfUser(answer.User)</h5>
+                }
+                <a href='@Url.Action("Index", "Answer", new { answerId = answer.Id })' class="btn btn-primary">Открыть ответ</a>
             </div>
         </div>
     }

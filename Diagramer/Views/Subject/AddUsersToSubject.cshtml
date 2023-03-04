@@ -1,0 +1,23 @@
+@using Diagramer.Constans
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Diagramer.Models.ViewModels.AddUsersToSubjectViewModel;
+@{
+    ViewData["Title"] = "Добавить группы";
+}
+
+
+<form asp-action="AddUsersToSubject" asp-controller="Subject" method="post" enctype="multipart/form-data">
+    <input name="SubjectId" type="hidden" value="@Model.SubjectId"/>
+    <input name="Users" type="hidden" value="@Model.Users"/>
+    <div class="form-group">
+        <label for="SelectedUsersId">Выберите студентов:</label>
+        <select multiple name="SelectedUsersId" class="form-control" id="SelectedUsersId">
+            <option disabled selected>Выберите студентов</option>
+            @foreach (var user in @Model.Users)
+            {
+                <option value="@user.Id">@HTMLHelpers.NameOfUser(user)</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Добавить</button>
+</form>

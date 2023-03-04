@@ -1,0 +1,38 @@
+@using System.Globalization
+@using Diagramer.Constans
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Diagramer.Models.Subject;
+@{
+    ViewData["Title"] = "Пользователи предмета";
+}
+
+<div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">@Model.Name</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+                <a class="btn btn-sm btn-outline-success" href='@Url.Action("AddUsersToSubject",new {subject_id = @Model.Id})'>Добавить студентов</a>
+            </div>
+        </div>
+
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Имя пользователя</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in @Model.Users)
+            {
+                <tr>
+                    <td>@HTMLHelpers.NameOfUser(user)</td>
+                    <td>
+                        <a href='@Url.Action("RemoveUserFromSubject", new {subject_id = @Model.Id, user_id = user.Id})' class="btn btn-danger">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

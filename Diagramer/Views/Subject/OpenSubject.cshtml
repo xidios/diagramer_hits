@@ -11,25 +11,34 @@
             <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group mr-2">
                     <a class="btn btn-sm btn-outline-dark" href='@Url.Action("CreateTask", "Task", new { subject_id = @Model.Id })'>Создать задание</a>
-                    <a class="btn btn-sm btn-outline-dark" href='#'>Редактировать список студентов</a>
+                    <a class="btn btn-sm btn-outline-dark" href='@Url.Action("GetSubjectUsers", new { subject_id = @Model.Id })'>Редактировать список студентов</a>
                     <a class="btn btn-sm btn-outline-success" href='#'>Редактировать предмет</a>
                 </div>
             </div>
         }
     </div>
 </div>
-@foreach (var task in @Model.Tasks)
-{
-    @if (task.IsVisible || User.IsInRole("Admin") || User.IsInRole("Teacher"))
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th scope="col">Название</th>
+        <th scope="col">Дедлайн</th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var task in @Model.Tasks)
     {
-        <div>
-            <h3>@Html.DisplayName(task.Name)</h3>
-            @if (task.Deadline != null)
-            {
-                <h4>Дедлайн: @task.Deadline.ToString();</h4>
-            }
-            <a href='@Url.Action("ViewTask", "Task", new { id = task.Id })' class="btn btn-primary">Open</a>
-
-        </div>
+        @if (task.IsVisible || User.IsInRole("Admin") || User.IsInRole("Teacher"))
+        {
+            <tr>
+                <td>@Html.DisplayName(task.Name)</td>
+                <td>@(task.Deadline != null ? task.Deadline.ToString() : "-")</td>
+                <td>
+                    <a href='@Url.Action("ViewTask", "Task", new { id = task.Id })' class="btn btn-primary">Открыть</a>
+                </td>
+            </tr>
+        }
     }
-}
+    </tbody>
+</table>

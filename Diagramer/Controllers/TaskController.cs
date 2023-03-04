@@ -28,12 +28,7 @@ public class TaskController : Controller
         _userService = userService;
         _diagrammerService = diagrammerService;
     }
-
-    // [Route("")]
-    // public IActionResult Index()
-    // {
-    //     return View(_context.Tasks.ToList());
-    // }
+    
 
     [HttpGet]
     [Route("create_task", Name = "CreateTask")]
@@ -294,6 +289,7 @@ public class TaskController : Controller
     {
         var answers = await _context.Answers.Where(a => a.TaskId == task_id)
             .Include(a => a.User)
+            .Include(a=>a.Group)
             .ToListAsync();
         return View(answers);
     }
