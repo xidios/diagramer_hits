@@ -2,12 +2,21 @@
 @{
     ViewData["Title"] = "Task Page";
 }
-<div class="text-center">
-    <h1>@Model.Name</h1>
-    @if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
-    {
-        <a href='@Url.Action("CreateTask", "Task", new { subject_id = @Model.Id })'>Создать задание</a>
-    }
+<div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">@Model.Name</h1>
+
+        @if (User.IsInRole("Teacher") || User.IsInRole("Admin"))
+        {
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group mr-2">
+                    <a class="btn btn-sm btn-outline-dark" href='@Url.Action("CreateTask", "Task", new { subject_id = @Model.Id })'>Создать задание</a>
+                    <a class="btn btn-sm btn-outline-dark" href='#'>Редактировать список студентов</a>
+                    <a class="btn btn-sm btn-outline-success" href='#'>Редактировать предмет</a>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 @foreach (var task in @Model.Tasks)
 {

@@ -48,9 +48,13 @@
     {
         <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.TeacherDiagram.Id, editable = false })'>Просмотреть правки преподавателя</a>
     }
-    @if (@Model.UserAnswer == null)
+    @if (@Model.UserAnswer == null && !@Model.Task.IsGroupTask)
     {
-        <a href='@Url.Action("CreateAnswer", "Answer", new { taskId = @Model.Task.Id })'>Создать диаграмму</a>
+        <a href='@Url.Action("CreateAnswer", "Answer", new { taskId = @Model.Task.Id, taskType = TaskTypeEnum.Individual })'>Создать диаграмму</a>
+    }
+    else if (@Model.UserAnswer == null && @Model.Task.IsGroupTask)
+    {
+        <a href='@Url.Action("CreateAnswer", "Answer", new { taskId = @Model.Task.Id, taskType = TaskTypeEnum.Group })'>Создать диаграмму</a>
     }
     else if (@Model.UserAnswer.Status == AnswerStatusEnum.Finalize || @Model.UserAnswer.Status == AnswerStatusEnum.InProgress)
     {

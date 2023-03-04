@@ -42,12 +42,13 @@ public class AnswerController : Controller
     }
 
     [Route("create/{taskId:guid}")]
-    public async Task<IActionResult> CreateAnswer(Guid taskId)
+    public async Task<IActionResult> CreateAnswer(Guid taskId,TaskTypeEnum taskType)
     {
         try
         {
             var userIdGuid = _userService.GetCurrentUserGuid(User);
             var task = await _context.Tasks
+                .Include(t=>t.Groups)
                 .Include(t => t.Diagram)
                 .FirstOrDefaultAsync(t => t.Id == taskId);
             if (task == null)
@@ -55,28 +56,64 @@ public class AnswerController : Controller
                 return NotFound("Task not found");
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userIdGuid);
+            var user = await _context.Users
+                .Include(u=>u.Groups)
+                .FirstOrDefaultAsync(u => u.Id == userIdGuid);
             if (user == null)
             {
                 return NotFound("User not found");
             }
 
-            var answer = await _context.Answers.FirstOrDefaultAsync(a => a.TaskId == taskId && a.UserId == userIdGuid);
+            Answer answer = null;
+            List<Group> userGroups = new List<Group>();
+            switch (taskType)
+            {
+                case TaskTypeEnum.Individual:
+                    answer = await _context.Answers.FirstOrDefaultAsync(a => a.TaskId == taskId && a.UserId == userIdGuid);
+                    break;
+                case TaskTypeEnum.Group:
+                    userGroups = task.Groups.Intersect(user.Groups).ToList();
+                    if (userGroups.Count() > 1)
+                    {
+                        return Conflict("Студент состоит больше чем в 2 группах. Обратитесь к преподавателю");
+                    }
+
+                    if (userGroups.Count == 0)
+                    {
+                        //TODO: Возможно стоит пересмотреть логику
+                        return NotFound("Вы не добавлены на данное задание");
+                    }
+
+                    answer = await _context.Answers
+                        .Include(a => a.StudentDiagram)
+                        .Include(d => d.TeacherDiagram)
+                        .FirstOrDefaultAsync(a => a.TaskId == task.Id && a.GroupId == userGroups[0].Id);
+                    break;
+            }
+            
             if (answer == null)
             {
-                var new_answer = new Answer
+                var newAnswer = new Answer
                 {
                     Task = task,
                     TaskId = taskId,
-                    User = user,
-                    UserId = userIdGuid,
                     StudentDiagram = new Diagram
                     {
                         XML = _diagrammerService.ReturnTaskDiagramOrEmpty(task.Diagram?.XML)
                     }
                 };
-                //task.Answers.Add(new_answer);
-                await _context.Answers.AddAsync(new_answer);
+                switch (taskType)
+                {
+                    case TaskTypeEnum.Individual:
+                        newAnswer.UserId = user.Id;
+                        newAnswer.User = user;
+                        break;
+                    case TaskTypeEnum.Group:
+                        newAnswer.GroupId = userGroups[0].Id;
+                        newAnswer.Group = userGroups[0];
+                        break;
+                }
+                await _context.Answers.AddAsync(newAnswer);
                 await _context.SaveChangesAsync();
             }
 

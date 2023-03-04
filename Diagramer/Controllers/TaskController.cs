@@ -104,8 +104,8 @@ public class TaskController : Controller
     public async Task<IActionResult> EditTask(Guid task_id)
     {
         var task = await _context.Tasks
-            .Include(t=>t.Diagram)
-            .Include(t=>t.Categories)
+            .Include(t => t.Diagram)
+            .Include(t => t.Categories)
             .FirstOrDefaultAsync(t => t.Id == task_id);
 
         return View(new EditTaskViewModel
@@ -133,8 +133,8 @@ public class TaskController : Controller
         }
 
         var task = await _context.Tasks
-            .Include(t=>t.Diagram)
-            .Include(c=>c.Categories)
+            .Include(t => t.Diagram)
+            .Include(c => c.Categories)
             .FirstOrDefaultAsync(t => t.Id == model.TaskId);
         if (task == null)
         {
@@ -177,8 +177,8 @@ public class TaskController : Controller
             {
                 task.Diagram.XML = model.Diagram;
             }
-            
         }
+
         // Subject = subject,
         task.Categories = categories;
         task.Mark = model.Mark;
@@ -198,27 +198,78 @@ public class TaskController : Controller
     [Route("{id:guid}")]
     public async Task<IActionResult> ViewTask(Guid id)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == _userService.GetCurrentUserGuid(User));
-        try
+        var user = await _context.Users
+            .Include(u => u.Groups)
+            .FirstOrDefaultAsync(u => u.Id == _userService.GetCurrentUserGuid(User));
+        var task = await _context.Tasks
+            .Include(t=>t.Groups)
+            .Include(t => t.Diagram)
+            .FirstOrDefaultAsync(t => t.Id == id);
+        if (task == null)
         {
-            var task = await _context.Tasks
-                .Include(t => t.Diagram)
-                .FirstOrDefaultAsync(t => t.Id == id);
-            task.Groups.Any(g => user.Groups.Any(u => u.Id == g.Id));
-            var answer = await _context.Answers
-                .Include(a => a.StudentDiagram)
-                .Include(d => d.TeacherDiagram)
-                .FirstOrDefaultAsync(a => a.TaskId == task.Id && a.UserId == user.Id);
-            var model = new ViewTaskViewModel
-            {
-                Task = task,
-                UserAnswer = answer
-            };
-            return View(model);
+            return NotFound("Task not found");
         }
-        catch (ArgumentNullException)
+
+        if (task.IsGroupTask)
         {
-            return NotFound();
+            try
+            {
+                if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
+                {
+                    //TODO: Возможно стоит пересмотреть логику
+                    return View(new ViewTaskViewModel
+                    {
+                        Task = task,
+                        UserAnswer = null
+                    });
+                }
+                
+                List<Group> userGroups = task.Groups.Intersect(user.Groups).ToList();
+                if (userGroups.Count() > 1)
+                {
+                    return Conflict("Студент состоит больше чем в 2 группах. Обратитесь к преподавателю");
+                }
+
+                if (userGroups.Count == 0)
+                {
+                    //TODO: Возможно стоит пересмотреть логику
+                    return NotFound("Вы не добавлены на данное задание");
+                }
+                var answer = await _context.Answers
+                    .Include(a => a.StudentDiagram)
+                    .Include(d => d.TeacherDiagram)
+                    .FirstOrDefaultAsync(a => a.TaskId == task.Id && a.GroupId == userGroups[0].Id);
+                var model = new ViewTaskViewModel
+                {
+                    Task = task,
+                    UserAnswer = answer
+                };
+                return View(model);
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound();
+            }
+        }
+        else
+        {
+            try
+            {
+                var answer = await _context.Answers
+                    .Include(a => a.StudentDiagram)
+                    .Include(d => d.TeacherDiagram)
+                    .FirstOrDefaultAsync(a => a.TaskId == task.Id && a.UserId == user.Id);
+                var model = new ViewTaskViewModel
+                {
+                    Task = task,
+                    UserAnswer = answer
+                };
+                return View(model);
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound();
+            }
         }
     }
 
@@ -246,26 +297,27 @@ public class TaskController : Controller
             .ToListAsync();
         return View(answers);
     }
+
     [Route("{task_id:guid}/groups")]
     public async Task<IActionResult> TaskGroups(Guid task_id)
     {
         var task = await _context.Tasks
-            .Include(t=>t.Groups)
+            .Include(t => t.Groups)
             .FirstOrDefaultAsync(t => t.Id == task_id);
         if (task == null)
         {
             return NotFound();
         }
-        
+
         return View(task);
-    
-        }
+    }
+
     [HttpGet]
     [Route("{task_id:guid}/add_groups")]
     public async Task<IActionResult> AddGroupsToTask(Guid task_id)
     {
         var task = await _context.Tasks
-            .Include(t=>t.Groups)
+            .Include(t => t.Groups)
             .FirstOrDefaultAsync(t => t.Id == task_id);
         if (task == null)
         {
@@ -281,6 +333,7 @@ public class TaskController : Controller
             Groups = notSelectedGroups
         });
     }
+
     [HttpPost]
     [Route("{task_id:guid}/add_groups")]
     public async Task<IActionResult> AddGroupsToTask(AddGroupsToTaskViewModel model)
@@ -291,26 +344,26 @@ public class TaskController : Controller
         }
 
         var task = await _context.Tasks
-            .Include(t=>t.Groups)
+            .Include(t => t.Groups)
             .FirstOrDefaultAsync(t => t.Id == model.TaskId);
         if (task == null)
         {
             return NotFound();
         }
-        
+
         List<Group> groups =
             await _context.Groups.Where(c => model.SelectedGroupsId.Any(i => i == c.Id)).ToListAsync();
         task.Groups.AddRange(groups);
         _context.Update(task);
         await _context.SaveChangesAsync();
-        return RedirectToAction("TaskGroups", new {task_id = model.TaskId});
+        return RedirectToAction("TaskGroups", new { task_id = model.TaskId });
     }
 
     [Route("{task_id:guid}/remove_group/{group_id:guid}")]
     public async Task<IActionResult> RemoveGroupFromTask(Guid task_id, Guid group_id)
     {
         var task = await _context.Tasks
-            .Include(t=>t.Groups)
+            .Include(t => t.Groups)
             .FirstOrDefaultAsync(t => t.Id == task_id);
         if (task == null)
         {
@@ -328,5 +381,4 @@ public class TaskController : Controller
         await _context.SaveChangesAsync();
         return RedirectToAction("TaskGroups", new { task_id = task_id });
     }
-    
 }

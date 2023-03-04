@@ -3,6 +3,7 @@ using System;
 using Diagramer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Diagramer.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230302081259_answerUpdated3")]
+    partial class answerUpdated3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
@@ -90,6 +92,7 @@ namespace Diagramer.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UserId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -477,7 +480,7 @@ namespace Diagramer.Data.Migrations
 
             modelBuilder.Entity("Diagramer.Models.Answer", b =>
                 {
-                    b.HasOne("Diagramer.Models.Group", "Group")
+                    b.HasOne("Diagramer.Models.Group", null)
                         .WithMany("Answers")
                         .HasForeignKey("GroupId");
 
@@ -499,9 +502,9 @@ namespace Diagramer.Data.Migrations
 
                     b.HasOne("Diagramer.Models.Identity.ApplicationUser", "User")
                         .WithMany("Answers")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Group");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("StudentDiagram");
 
