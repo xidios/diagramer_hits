@@ -2,6 +2,7 @@ using System.Security.AccessControl;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Diagramer.Data;
+using Diagramer.Hubs;
 using Diagramer.Models.Identity;
 using Diagramer.Services;
 
@@ -41,6 +42,18 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDiagrammerService, DiagrammerService>();
+builder.Services.AddSignalR();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.WithOrigins("https://localhost:7058")
+                .AllowAnyHeader()
+                .WithMethods("GET", "POST")
+                .AllowCredentials();
+        });
+});
 var app = builder.Build();
 InitRoles(builder, app);
 // Configure the HTTP request pipeline.
@@ -62,6 +75,9 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors();
+app.MapHub<DiagrammerHub>("/diagrammerHub");
+
 
 app.MapControllerRoute(
     name: "default",

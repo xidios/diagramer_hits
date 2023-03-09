@@ -22,12 +22,13 @@
 
     @if (@Model.Status == AnswerStatusEnum.Sent)
     {
-        @if (User.IsInRole(ApplicationRoleNames.Admin) || User.IsInRole(ApplicationRoleNames.Teacher))
-        {
-            <a href='@Url.Action("StartAnswerReview", "Answer", new { answerId = @Model.Id })'>Начать проверку диаграммы студента</a>
-            <br/>
-        }
-        <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.StudentDiagram.Id, editable = false })'>Посмотреть диаграмму</a>
+        <div class="my-3">
+            @if (User.IsInRole(ApplicationRoleNames.Admin) || User.IsInRole(ApplicationRoleNames.Teacher))
+            {
+                <button type="button" class="btn btn-primary me-3" onclick="window.location.href='@Url.Action("StartAnswerReview", "Answer", new { answerId = @Model.Id })'">Начать проверку диаграммы студента</button>
+            }
+            <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.StudentDiagram.Id, editable = false })' class="btn btn-outline-primary">Посмотреть диаграмму</a>
+        </div>
     }
     else if (@Model.Status == AnswerStatusEnum.UnderEvaluation)
     {

@@ -237,7 +237,8 @@ public class TaskController : Controller
                 var model = new ViewTaskViewModel
                 {
                     Task = task,
-                    UserAnswer = answer
+                    UserAnswer = answer,
+                    GroupId = userGroups[0].Id
                 };
                 return View(model);
             }

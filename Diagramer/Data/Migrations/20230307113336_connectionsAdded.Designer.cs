@@ -3,6 +3,7 @@ using System;
 using Diagramer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Diagramer.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230307113336_connectionsAdded")]
+    partial class connectionsAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
@@ -157,12 +159,6 @@ namespace Diagramer.Data.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("TaskId")
                         .HasColumnType("TEXT");
 
@@ -171,36 +167,11 @@ namespace Diagramer.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("RoomId");
-
                     b.HasIndex("TaskId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Connections");
-                });
-
-            modelBuilder.Entity("Diagramer.Models.Hub.Room", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("TaskId");
-
-                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("Diagramer.Models.Identity.ApplicationUser", b =>
@@ -565,18 +536,6 @@ namespace Diagramer.Data.Migrations
 
             modelBuilder.Entity("Diagramer.Models.Hub.HubConnection", b =>
                 {
-                    b.HasOne("Diagramer.Models.Group", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Diagramer.Models.Hub.Room", "Room")
-                        .WithMany("HubConnections")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Diagramer.Models.Task", "Task")
                         .WithMany()
                         .HasForeignKey("TaskId")
@@ -589,32 +548,9 @@ namespace Diagramer.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Group");
-
-                    b.Navigation("Room");
-
                     b.Navigation("Task");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Diagramer.Models.Hub.Room", b =>
-                {
-                    b.HasOne("Diagramer.Models.Group", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Diagramer.Models.Task", "Task")
-                        .WithMany()
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-
-                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("Diagramer.Models.Task", b =>
@@ -703,11 +639,6 @@ namespace Diagramer.Data.Migrations
             modelBuilder.Entity("Diagramer.Models.Group", b =>
                 {
                     b.Navigation("Answers");
-                });
-
-            modelBuilder.Entity("Diagramer.Models.Hub.Room", b =>
-                {
-                    b.Navigation("HubConnections");
                 });
 
             modelBuilder.Entity("Diagramer.Models.Identity.ApplicationUser", b =>

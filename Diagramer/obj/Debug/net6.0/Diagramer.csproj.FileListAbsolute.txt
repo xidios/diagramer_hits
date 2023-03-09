@@ -124,3 +124,9 @@ C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\refint\Di
 C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\Diagramer.pdb
 C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\Diagramer.genruntimeconfig.cache
 C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\obj\Debug\net6.0\ref\Diagramer.dll
+C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\bin\Debug\net6.0\Microsoft.AspNet.SignalR.Core.dll
+C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\bin\Debug\net6.0\Microsoft.Owin.dll
+C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\bin\Debug\net6.0\Microsoft.Owin.Security.dll
+C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\bin\Debug\net6.0\Owin.dll
+C:\Users\redbu\RiderProjects\diagramer_hits\Diagramer\bin\Debug\net6.0\Microsoft.AspNet.SignalR.Client.dll

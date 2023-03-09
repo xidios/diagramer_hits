@@ -68,6 +68,8 @@
 	<script type="text/javascript" src="javascript/examples/grapheditor/www/js/Menus.js"></script>
 	<script type="text/javascript" src="javascript/examples/grapheditor/www/js/Toolbar.js"></script>
 	<script type="text/javascript" src="javascript/examples/grapheditor/www/js/Dialogs.js"></script>
+	 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
 	<script src="https://cdn.socket.io/socket.io-3.0.0.js"></script>
 </head>
 <body class="geEditor">
@@ -108,9 +110,6 @@
 				var xml = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@Model.XML))";
 				window.DIAGRAM_ID = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@Model.Id.ToString()))";
 				console.log(xml);
-				//var parser = new DOMParser();
-				//var xmlDoc = parser.parseFromString(xml,"text/xml");
-				//console.log(xmlDoc);
 				
 				// Adds bundle text to resources
 				mxResources.parse(xhr[0].getText());
@@ -128,20 +127,39 @@
 				editorUI = new EditorUi(editor);
 				editor.graph.refresh();
 				console.log(editor.graph);
-				const socket = io('ws://localhost:8080');
-				socket.on('connection', xml_server => {
-					let doc = mxUtils.parseXml(xml_server);
-					editor.setGraphXml(doc.documentElement);
-					editor.graph.updateSocket(socket);
-					editor.graph.refresh();
-				});
-				socket.on('update_graph', xml => {
-					// console.log("NEW XML: ")
-					// console.log(xml);
-					let doc = mxUtils.parseXml(xml);
-					editor.setGraphXml(doc.documentElement);
-					editor.graph.refresh();
-				});
+				var groupTask = @ViewBag.IsGroupTask.ToString().ToLower();
+				if (groupTask){
+					var connection = new signalR.HubConnectionBuilder().withUrl("/diagrammerHub").build();
+					connection.on("ReceiveMessage", function (message) {
+						console.log(message);
+					});
+					connection.start().then(() => {
+				  console.log("Connected");
+				  connection.invoke("JoinRoom", "@Html.Raw(HttpUtility.JavaScriptStringEncode(@ViewBag.TaskId))","@Html.Raw(HttpUtility.JavaScriptStringEncode(@ViewBag.GroupId))").then(() => {
+				  console.log("Joined group");
+				  });
+					}).catch(err => console.error(err));
+					function sendMessage() {
+						var message = $('#message').val();
+						connection.invoke("SendMessage", message);
+						console.log(message);
+					}
+				}
+				
+				// const socket = io('ws://localhost:8080');
+				// socket.on('connection', xml_server => {
+				// 	let doc = mxUtils.parseXml(xml_server);
+				// 	editor.setGraphXml(doc.documentElement);
+				// 	editor.graph.updateSocket(socket);
+				// 	editor.graph.refresh();
+				// });
+				// socket.on('update_graph', xml => {
+				// 	// console.log("NEW XML: ")
+				// 	// console.log(xml);
+				// 	let doc = mxUtils.parseXml(xml);
+				// 	editor.setGraphXml(doc.documentElement);
+				// 	editor.graph.refresh();
+				// });
 			}, function()
 			{
 				document.body.innerHTML = '<center style="margin-top:10%;">Error loading resource files. Please check browser console.</center>';

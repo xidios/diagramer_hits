@@ -1,4 +1,5 @@
 ﻿using Diagramer.Models;
+using Diagramer.Models.Hub;
 using Diagramer.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -21,7 +22,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
     public DbSet<Subject> Subjects { get; set; }
     public DbSet<Answer> Answers { get; set; }
     public DbSet<Group> Groups { get; set; }
+    public DbSet<Room> Rooms { get; set; }
 
+    public DbSet<HubConnection> Connections { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

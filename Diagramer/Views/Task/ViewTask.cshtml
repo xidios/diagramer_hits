@@ -28,54 +28,58 @@
         }
 
     </div>
-    <span>@Model.Task.Description</span>
-
-    @if (@Model.UserAnswer?.Comment != null)
-    {
-        <hr>
-        <h2>Комментарий:</h2>
-        <p>@Model.UserAnswer.Comment</p>
-    }
-    @if (@Model.Task.Deadline is not null)
-    {
-        <h3>Срок сдачи до <u>@Model.Task.Deadline.ToString()</u></h3>
-    }
-    @if (@Model.Task.Diagram is not null)
-    {
-        <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.Task.Diagram.Id, editable = false })'>Просмотреть диаграмму преподавателя</a>
-    }
-    @if (@Model.UserAnswer?.TeacherDiagram != null)
-    {
-        <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.TeacherDiagram.Id, editable = false })'>Просмотреть правки преподавателя</a>
-    }
-    @if (@Model.UserAnswer == null && !@Model.Task.IsGroupTask)
-    {
-        <a href='@Url.Action("CreateAnswer", "Answer", new { taskId = @Model.Task.Id, taskType = TaskTypeEnum.Individual })'>Создать диаграмму</a>
-    }
-    else if (@Model.UserAnswer == null && @Model.Task.IsGroupTask)
-    {
-        <a href='@Url.Action("CreateAnswer", "Answer", new { taskId = @Model.Task.Id, taskType = TaskTypeEnum.Group })'>Создать диаграмму</a>
-    }
-    else if (@Model.UserAnswer.Status == AnswerStatusEnum.Finalize || @Model.UserAnswer.Status == AnswerStatusEnum.InProgress)
-    {
-        <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.StudentDiagram.Id, editable = true })'>Редактировать диаграмму</a>
-        <br/>
-        <a href='@Url.Action("SubmitAnswerForReview", "Answer", new { answerId = @Model.UserAnswer.Id })'>Отправить диаграмму на проверку</a>
-    }
-    else if (@Model.UserAnswer.Status == AnswerStatusEnum.Sent)
-    {
-        <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.StudentDiagram.Id, editable = false })'>Посмотреть диаграмму</a>
-        <br/>
-        <a href='@Url.Action("CancelAnswerSubmission", "Answer", new { answerId = @Model.UserAnswer.Id })'>Отменить отправку</a>
-    }
-    else if (@Model.UserAnswer.Status == AnswerStatusEnum.UnderEvaluation)
-    {
-        <h3>Задание проверяется преподавателем</h3>
-    }
-    else if (@Model.UserAnswer.Status == AnswerStatusEnum.Rated)
-    {
-        <h3>Оценка: @Model.UserAnswer.Mark</h3>
-        <a href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.StudentDiagram.Id, editable = false })'>Посмотреть диаграмму</a>
-    }
-
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <span>@Model.Task.Description</span>
+                @if (@Model.UserAnswer?.Comment != null)
+                {
+                    <hr>
+                    <h2>Комментарий:</h2>
+                    <p>@Model.UserAnswer.Comment</p>
+                }
+                @if (@Model.Task.Deadline is not null)
+                {
+                    <h3>Срок сдачи до <u>@Model.Task.Deadline.ToString()</u></h3>
+                }
+                @if (@Model.Task.Diagram is not null)
+                {
+                    <a class="btn btn-primary" href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.Task.Diagram.Id, editable = false })'>Просмотреть диаграмму преподавателя</a>
+                }
+                @if (@Model.UserAnswer?.TeacherDiagram != null)
+                {
+                    <a class="btn btn-outline-secondary" href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.TeacherDiagram.Id, editable = false })'>Просмотреть правки преподавателя</a>
+                }
+                @if (@Model.UserAnswer == null && !@Model.Task.IsGroupTask)
+                {
+                    <a class="btn btn-primary" href='@Url.Action("CreateAnswer", "Answer", new { taskId = @Model.Task.Id, taskType = TaskTypeEnum.Individual })'>Создать диаграмму</a>
+                }
+                else if (@Model.UserAnswer == null && @Model.Task.IsGroupTask)
+                {
+                    <a class="btn btn-primary" href='@Url.Action("CreateAnswer", "Answer", new { taskId = @Model.Task.Id, taskType = TaskTypeEnum.Group })'>Создать диаграмму</a>
+                }
+                else if (@Model.UserAnswer.Status == AnswerStatusEnum.Finalize || @Model.UserAnswer.Status == AnswerStatusEnum.InProgress)
+                {
+                    <a class="btn btn-outline-success" href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.StudentDiagram.Id, taskId = @Model.Task.Id, groupId = @Model.GroupId, editable = true })'>Редактировать диаграмму</a>
+                    <br/>
+                    <a class="btn btn-primary mt-1" href='@Url.Action("SubmitAnswerForReview", "Answer", new { answerId = @Model.UserAnswer.Id })'>Отправить диаграмму на проверку</a>
+                }
+                else if (@Model.UserAnswer.Status == AnswerStatusEnum.Sent)
+                {
+                    <a class="btn btn-outline-secondary" href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.StudentDiagram.Id, editable = false })'>Посмотреть диаграмму</a>
+                    <br/>
+                    <a class="btn btn-primary" href='@Url.Action("CancelAnswerSubmission", "Answer", new { answerId = @Model.UserAnswer.Id })'>Отменить отправку</a>
+                }
+                else if (@Model.UserAnswer.Status == AnswerStatusEnum.UnderEvaluation)
+                {
+                    <h3>Задание проверяется преподавателем</h3>
+                }
+                else if (@Model.UserAnswer.Status == AnswerStatusEnum.Rated)
+                {
+                    <h3>Оценка: @Model.UserAnswer.Mark</h3>
+                    <a class="btn btn-primary" href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.StudentDiagram.Id, editable = false })'>Посмотреть диаграмму</a>
+                }
+            </div>
+        </div>
+    </div>
 </div>

@@ -2,7 +2,35 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>SignalR Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+</head>
+<body>
+    <h1>SignalR Test</h1>
+    <input type="text" id="message" />
+    <input type="button" value="Send" onclick="sendMessage()" />
+    <ul id="messages"></ul>
+    <script>
+        var connection = new signalR.HubConnectionBuilder().withUrl("/diagrammerHub").build();
+        connection.on("ReceiveMessage", function (message) {
+            $('#messages').append($('<li>').text(message));
+            console.log(message);
+        });
+        connection.start().then(() => {
+            console.log("Connected");
+            connection.invoke("JoinRoom", "общий чат").then(() => {
+                console.log("Joined group");
+            });
+        }).catch(err => console.error(err));
+        function sendMessage() {
+            var message = $('#message').val();
+            connection.invoke("SendMessage", message);
+            console.log(message);
+        }
+    </script>
+</body>
+</html>
