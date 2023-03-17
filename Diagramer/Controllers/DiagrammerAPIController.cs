@@ -37,8 +37,9 @@ public class DiagrammerAPIController : ControllerBase
         {
             if (answer.Status != AnswerStatusEnum.UnderEvaluation)
             {
-                return StatusCode(StatusCodes.Status405MethodNotAllowed, "Answer not editable"); 
+                return StatusCode(StatusCodes.Status405MethodNotAllowed, "Answer not editable");
             }
+
             if (User.IsInRole("Teacher") || User.IsInRole("Admin"))
             {
                 diagram.XML = diagramXML;
@@ -56,7 +57,7 @@ public class DiagrammerAPIController : ControllerBase
         {
             return StatusCode(StatusCodes.Status405MethodNotAllowed, "Answer not editable");
         }
-        
+
         //TODO: валидация диаграммы?
         diagram.XML = diagramXML;
         _context.Update(diagram);

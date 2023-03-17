@@ -4,17 +4,17 @@
 
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>SignalR Test</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
 </head>
 <body>
-    <h1>SignalR Test</h1>
-    <input type="text" id="message" />
-    <input type="button" value="Send" onclick="sendMessage()" />
-    <ul id="messages"></ul>
-    <script>
+<h1>SignalR Test</h1>
+<input type="text" id="message"/>
+<input type="button" value="Send" onclick="sendMessage()"/>
+<ul id="messages"></ul>
+<script>
         var connection = new signalR.HubConnectionBuilder().withUrl("/diagrammerHub").build();
         connection.on("ReceiveMessage", function (message) {
             $('#messages').append($('<li>').text(message));

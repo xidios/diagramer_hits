@@ -2,7 +2,7 @@ namespace Diagramer.Models.ViewModels;
 
 public class EditTaskViewModel
 {
-    public Guid? TaskId { get; set; }= null; 
+    public Guid? TaskId { get; set; } = null;
     public List<Category> Categories { get; set; }
 
     public List<Category> SelectedCategories { get; set; }

@@ -12,10 +12,12 @@ namespace Diagramer.Controllers;
 public class CategoryController : Controller
 {
     private ApplicationDbContext _context;
+
     public CategoryController(ApplicationDbContext context)
     {
         _context = context;
     }
+
     public async Task<IActionResult> Index()
     {
         var categories = await _context.Categories.ToListAsync();
@@ -29,6 +31,7 @@ public class CategoryController : Controller
         var model = new CreateCategoryViewModel();
         return View(model);
     }
+
     [HttpPost]
     [Route("create_subject")]
     public async Task<IActionResult> CreateCategory(CreateCategoryViewModel model)
@@ -37,6 +40,7 @@ public class CategoryController : Controller
         {
             return View(model);
         }
+
         var category = _context.Categories.FirstOrDefaultAsync(c => c.Name.ToLower() == model.Name.ToLower());
         if (category == null)
         {
@@ -57,12 +61,13 @@ public class CategoryController : Controller
     public async Task<IActionResult> OpenCategory(Guid id)
     {
         var category = await _context.Categories
-            .Include(c=>c.Tasks)
+            .Include(c => c.Tasks)
             .FirstOrDefaultAsync(c => c.Id == id);
         if (category == null)
         {
             return NotFound("Category not found");
         }
+
         return View(category);
     }
 }

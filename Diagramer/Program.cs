@@ -24,6 +24,7 @@ void InitRoles(WebApplicationBuilder builder, WebApplication app)
             });
         }
     }
+
     context.SaveChanges();
 }
 

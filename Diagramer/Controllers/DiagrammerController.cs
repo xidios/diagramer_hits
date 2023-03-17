@@ -33,6 +33,7 @@ public class DiagrammerController : Controller
         {
             task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);
         }
+
         //TODO: Логика проверки юзера в группе не помешала бы
         ViewBag.IsGroupTask = false;
         if (taskId != null && task.IsGroupTask)

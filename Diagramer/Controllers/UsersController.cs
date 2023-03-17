@@ -18,7 +18,7 @@ public class UsersController : Controller
     private readonly IUserService _userService;
     private readonly IDiagrammerService _diagrammerService;
     private readonly UserManager<ApplicationUser> _userManager;
-    
+
 
     public UsersController(ApplicationDbContext context, IUserService userService, IDiagrammerService diagrammerService,
         UserManager<ApplicationUser> userManager)
@@ -27,9 +27,8 @@ public class UsersController : Controller
         _userService = userService;
         _diagrammerService = diagrammerService;
         _userManager = userManager;
-        
     }
-    
+
     [Route("")]
     public async Task<IActionResult> Index()
     {
@@ -51,6 +50,7 @@ public class UsersController : Controller
                 students.Add(user);
             }
         }
+
         return View(new CreateGroupViewModel
         {
             Users = students

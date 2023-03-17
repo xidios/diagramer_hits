@@ -10,6 +10,7 @@ public static class HTMLHelpers
         {
             return "Пользователь не найден";
         }
+
         if (user.Name == null)
             return $"Имя не указано, почта: {user.Email}";
         return user.Name;

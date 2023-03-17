@@ -2599,6 +2599,9 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	// Blocks default click action
 	mxEvent.addListener(elt, 'click', function(evt)
 	{
+		console.log("mxEvent.addListener(elt, 'click', function(evt)")
+		console.log(elt);
+		console.log(evt);
 		mxEvent.consume(evt);
 	});
 

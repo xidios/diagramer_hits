@@ -42,13 +42,13 @@ public class AnswerController : Controller
     }
 
     [Route("create/{taskId:guid}")]
-    public async Task<IActionResult> CreateAnswer(Guid taskId,TaskTypeEnum taskType)
+    public async Task<IActionResult> CreateAnswer(Guid taskId, TaskTypeEnum taskType)
     {
         try
         {
             var userIdGuid = _userService.GetCurrentUserGuid(User);
             var task = await _context.Tasks
-                .Include(t=>t.Groups)
+                .Include(t => t.Groups)
                 .Include(t => t.Diagram)
                 .FirstOrDefaultAsync(t => t.Id == taskId);
             if (task == null)
@@ -57,7 +57,7 @@ public class AnswerController : Controller
             }
 
             var user = await _context.Users
-                .Include(u=>u.Groups)
+                .Include(u => u.Groups)
                 .FirstOrDefaultAsync(u => u.Id == userIdGuid);
             if (user == null)
             {
@@ -69,7 +69,8 @@ public class AnswerController : Controller
             switch (taskType)
             {
                 case TaskTypeEnum.Individual:
-                    answer = await _context.Answers.FirstOrDefaultAsync(a => a.TaskId == taskId && a.UserId == userIdGuid);
+                    answer = await _context.Answers.FirstOrDefaultAsync(a =>
+                        a.TaskId == taskId && a.UserId == userIdGuid);
                     break;
                 case TaskTypeEnum.Group:
                     userGroups = task.Groups.Intersect(user.Groups).ToList();
@@ -90,7 +91,7 @@ public class AnswerController : Controller
                         .FirstOrDefaultAsync(a => a.TaskId == task.Id && a.GroupId == userGroups[0].Id);
                     break;
             }
-            
+
             if (answer == null)
             {
                 var newAnswer = new Answer
@@ -113,6 +114,7 @@ public class AnswerController : Controller
                         newAnswer.Group = userGroups[0];
                         break;
                 }
+
                 await _context.Answers.AddAsync(newAnswer);
                 await _context.SaveChangesAsync();
             }
@@ -172,7 +174,7 @@ public class AnswerController : Controller
         answer.Status = AnswerStatusEnum.UnderEvaluation;
         _context.Update(answer);
         await _context.SaveChangesAsync();
-        return RedirectToAction("Index",  new { answerId = answer.Id });
+        return RedirectToAction("Index", new { answerId = answer.Id });
     }
 
     [Route("cancel_review/{answerId:guid}")]
@@ -187,7 +189,7 @@ public class AnswerController : Controller
         answer.Status = AnswerStatusEnum.Sent;
         _context.Update(answer);
         await _context.SaveChangesAsync();
-        return RedirectToAction("Index",  new { answerId = answer.Id });
+        return RedirectToAction("Index", new { answerId = answer.Id });
     }
 
     [HttpPost]
@@ -205,7 +207,7 @@ public class AnswerController : Controller
         answer.Status = AnswerStatusEnum.Rated;
         _context.Update(answer);
         await _context.SaveChangesAsync();
-        return RedirectToAction("Index",  new { answerId = answer.Id });
+        return RedirectToAction("Index", new { answerId = answer.Id });
     }
 
     [HttpPost]
@@ -222,7 +224,7 @@ public class AnswerController : Controller
         answer.Status = AnswerStatusEnum.Finalize;
         _context.Update(answer);
         await _context.SaveChangesAsync();
-        return RedirectToAction("Index",  new { answerId = answer.Id });
+        return RedirectToAction("Index", new { answerId = answer.Id });
     }
 
     [Route("make_edits_in_student_answer/{answerId:guid}")]

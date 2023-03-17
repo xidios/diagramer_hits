@@ -28,7 +28,7 @@ public class TaskController : Controller
         _userService = userService;
         _diagrammerService = diagrammerService;
     }
-    
+
 
     [HttpGet]
     [Route("create_task", Name = "CreateTask")]
@@ -197,7 +197,7 @@ public class TaskController : Controller
             .Include(u => u.Groups)
             .FirstOrDefaultAsync(u => u.Id == _userService.GetCurrentUserGuid(User));
         var task = await _context.Tasks
-            .Include(t=>t.Groups)
+            .Include(t => t.Groups)
             .Include(t => t.Diagram)
             .FirstOrDefaultAsync(t => t.Id == id);
         if (task == null)
@@ -218,7 +218,7 @@ public class TaskController : Controller
                         UserAnswer = null
                     });
                 }
-                
+
                 List<Group> userGroups = task.Groups.Intersect(user.Groups).ToList();
                 if (userGroups.Count() > 1)
                 {
@@ -230,6 +230,7 @@ public class TaskController : Controller
                     //TODO: Возможно стоит пересмотреть логику
                     return NotFound("Вы не добавлены на данное задание");
                 }
+
                 var answer = await _context.Answers
                     .Include(a => a.StudentDiagram)
                     .Include(d => d.TeacherDiagram)
@@ -290,7 +291,7 @@ public class TaskController : Controller
     {
         var answers = await _context.Answers.Where(a => a.TaskId == task_id)
             .Include(a => a.User)
-            .Include(a=>a.Group)
+            .Include(a => a.Group)
             .ToListAsync();
         return View(answers);
     }

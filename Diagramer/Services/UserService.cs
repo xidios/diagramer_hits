@@ -12,6 +12,7 @@ public interface IUserService
 public class UserService : IUserService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+
     public UserService(UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
@@ -24,6 +25,7 @@ public class UserService : IUserService
         {
             throw new ArgumentNullException("User not found");
         }
+
         var userGuid = Guid.Parse(userId);
         return userGuid;
     }

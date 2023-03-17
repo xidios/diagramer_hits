@@ -1,4 +1,3 @@
-
 using Microsoft.AspNet.SignalR.Infrastructure;
 
 namespace Diagramer.Models.ViewModels;

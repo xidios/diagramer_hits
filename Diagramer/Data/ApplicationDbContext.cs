@@ -8,7 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Diagramer.Data;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>
+    , IdentityUserRole<Guid>,
     IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -25,6 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
     public DbSet<Room> Rooms { get; set; }
 
     public DbSet<HubConnection> Connections { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

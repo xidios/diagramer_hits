@@ -26,23 +26,24 @@ public class DiagrammerHub : Hub
         _userService = userService;
     }
 
-    
-    public async Task JoinRoom(string taskId,string groupId)
+
+    public async Task JoinRoom(string taskId, string groupId)
     {
-        
         string connectionId = Context.ConnectionId;
         var userId = _userService.GetCurrentUserGuid(Context.User);
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        var task = await _context.Tasks.FirstOrDefaultAsync(t=>t.Id == Guid.Parse(taskId));
+        var task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == Guid.Parse(taskId));
         if (task == null)
         {
             return;
         }
+
         var group = await _context.Groups.FirstOrDefaultAsync(g => g.Id == Guid.Parse(groupId));
         if (group == null)
         {
             return;
         }
+
         var room = await _context.Rooms.FirstOrDefaultAsync(r => r.GroupId == group.Id && r.TaskId == task.Id);
         if (room == null)
         {
@@ -93,7 +94,7 @@ public class DiagrammerHub : Hub
     {
         await Clients.All.SendAsync("ReceiveMessage", message);
     }
-    
+
     public async Task<Room> CreateRoom(Models.Task task, Group group)
     {
         Room room = new Room
@@ -106,5 +107,26 @@ public class DiagrammerHub : Hub
         await _context.Rooms.AddAsync(room);
         await _context.SaveChangesAsync();
         return room;
+    }
+
+    public async Task MoveCells(string[] cellIds, int dx, int dy,bool clone)
+    {
+        //TODO: OtherInGroup
+        await Clients.Others.SendAsync("MoveCells", cellIds, dx, dy);
+    }
+    public async Task SendMxGeometryChange(string cellId, int x, int y,int width, int height)
+    {
+        //TODO: OtherInGroup
+        await Clients.Others.SendAsync("MxGeometryChange", cellId, x, y,width,height);
+    }
+
+    public async Task AddVertexOnDiagram(int x,int y,int width,int height, string id, string value, string style)
+    {
+        await Clients.Others.SendAsync("AddVertexOnDiagram",  x, y, width, height,  id,  value,  style);
+    }
+    
+    public async Task AddEdgeOnDiagram(string? targetId,string? sourceId, string id, string value,string style)
+    {
+        await Clients.Others.SendAsync("AddEdgeOnDiagram",  targetId, sourceId,  id,  value,  style);
     }
 }
