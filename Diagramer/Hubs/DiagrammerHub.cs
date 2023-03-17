@@ -120,9 +120,9 @@ public class DiagrammerHub : Hub
         await Clients.Others.SendAsync("MxGeometryChange", cellId, x, y,width,height);
     }
 
-    public async Task AddVertexOnDiagram(int x,int y,int width,int height, string id, string value, string style)
+    public async Task AddVertexOnDiagram(string json)
     {
-        await Clients.Others.SendAsync("AddVertexOnDiagram",  x, y, width, height,  id,  value,  style);
+        await Clients.Others.SendAsync("AddVertexOnDiagram",  json);
     }
     
     public async Task AddEdgeOnDiagram(string? targetId,string? sourceId, string id, string value,string style)
