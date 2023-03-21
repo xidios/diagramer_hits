@@ -1945,9 +1945,9 @@ mxGraph.prototype.graphModelChanged = function (changes, signalRCall = false) {
                     var model = this.getModel();
                     var geometry = changes[i].geometry;
                     var previous = changes[i].previous;
-                    this.signalRConnection.invoke("SendMxGeometryChange", cell.id, geometry.x, geometry.y, geometry.width, geometry.height).then(() => {
-                        console.log("MxGeometryChange send");
-                    });
+                    // this.signalRConnection.invoke("SendMxGeometryChange", cell.id, geometry.x, geometry.y, geometry.width, geometry.height).then(() => {
+                    //     console.log("MxGeometryChange send");
+                    // });
                 }
             }
         }
@@ -4462,7 +4462,7 @@ mxGraph.prototype.autoSizeCell = function (cell, recurse) {
  * includeEdges - Optional boolean which specifies if all connected edges
  * should be removed as well. Default is true.
  */
-mxGraph.prototype.removeCells = function (cells, includeEdges) {
+mxGraph.prototype.removeCells = function (cells, includeEdges, signalRCall = false) {
     includeEdges = (includeEdges != null) ? includeEdges : true;
 
     if (cells == null) {
@@ -4498,8 +4498,10 @@ mxGraph.prototype.removeCells = function (cells, includeEdges) {
     this.model.beginUpdate();
     try {
         this.cellsRemoved(cells);
-        this.fireEvent(new mxEventObject(mxEvent.REMOVE_CELLS,
-            'cells', cells, 'includeEdges', includeEdges));
+        if (!signalRCall){
+            this.fireEvent(new mxEventObject(mxEvent.REMOVE_CELLS,
+                'cells', cells, 'includeEdges', includeEdges));
+        }
     } finally {
         this.model.endUpdate();
     }

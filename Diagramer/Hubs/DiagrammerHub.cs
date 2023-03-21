@@ -114,19 +114,46 @@ public class DiagrammerHub : Hub
         //TODO: OtherInGroup
         await Clients.Others.SendAsync("MoveCells", cellIds, dx, dy);
     }
-    public async Task SendMxGeometryChange(string cellId, int x, int y,int width, int height)
-    {
-        //TODO: OtherInGroup
-        await Clients.Others.SendAsync("MxGeometryChange", cellId, x, y,width,height);
-    }
+    
 
     public async Task AddVertexOnDiagram(string json)
     {
         await Clients.Others.SendAsync("AddVertexOnDiagram",  json);
     }
-    
-    public async Task AddEdgeOnDiagram(string? targetId,string? sourceId, string id, string value,string style)
+    public async Task RemoveCells(string json)
     {
-        await Clients.Others.SendAsync("AddEdgeOnDiagram",  targetId, sourceId,  id,  value,  style);
+        await Clients.Others.SendAsync("RemoveCells",  json);
+    }
+    
+    public async Task AddEdgeOnDiagram(string json)
+    {
+        await Clients.Others.SendAsync("AddEdgeOnDiagram",  json);
+    }
+    public async Task MxGeometryChange(string json)
+    {
+        //TODO: OtherInGroup
+        await Clients.Others.SendAsync("MxGeometryChange", json);
+    }
+    
+    public async Task MxTerminalChange(string json)
+    {
+        //TODO: OtherInGroup
+        await Clients.Others.SendAsync("MxTerminalChange", json);
+    }
+    public async Task MxStyleChange(string json)
+    {
+        //TODO: OtherInGroup
+        await Clients.Others.SendAsync("MxStyleChange", json);
+    }
+    public async Task MxValueChange(string json)
+    {
+        //TODO: OtherInGroup
+        await Clients.Others.SendAsync("MxValueChange", json);
+    }
+    
+    public async Task MxChildChange(string json)
+    {
+        //TODO: OtherInGroup
+        await Clients.Others.SendAsync("MxChildChange", json);
     }
 }

@@ -170,37 +170,99 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
             this.domainPathUrl = b.substring(0, d + 1);
         }
     }
-    this.createCellByData = function (cellData,parent){
+    this.createCellByData = function (cellData, parent) {
         var newCell = new mxCell(cellData.value, new mxGeometry(cellData.x, cellData.y, cellData.width, cellData.height), cellData.style);
-        newCell.setVertex(true);
+        newCell.setVertex(cellData.isVertex);
         newCell.setId(cellData.id);
-        
+        if (cellData.isEdge) {
+            newCell.setEdge(true);
+            newCell.geometry.setTerminalPoint(new mxPoint(cellData.sourcePoint.x, cellData.sourcePoint.y), true);
+            newCell.geometry.setTerminalPoint(new mxPoint(cellData.targetPoint.x, cellData.targetPoint.y), false);
+        }
         this.getModel().beginUpdate(); // начинаем транзакцию модели
         try {
             newCell = this.addCell(newCell, parent, undefined, undefined, undefined, true); // добавляем ячейку на граф, передавая родительский элемент
         } finally {
             this.getModel().endUpdate(); // завершаем транзакцию модели
         }
-        if (cellData.children.length > 0){
+        if (cellData.children.length > 0) {
             var children = cellData.children;
-            for (var i = 0;i<children.length; i++){
-                this.createCellByData(children[i],newCell);
+            for (var i = 0; i < children.length; i++) {
+                this.createCellByData(children[i], newCell);
             }
         }
     }
     this.updateSignalRConnection = function (signalRConnection) {
         this.signalRConnection = signalRConnection;
+        this.model.updateSignalRConnection(signalRConnection);
         mxGraph.updateSignalRConnection(signalRConnection);
-        this.signalRConnection.on("MxGeometryChange", (cellId, x, y, width, height) => {
-
+        this.signalRConnection.on("MxGeometryChange", (json) => {
+            var data = JSON.parse(json);
             var model = this.model;
-            var cell = model.getCell(cellId);
+            var cell = model.getCell(data.cellId);
             var newGeometry = cell.getGeometry().clone();
-            newGeometry.x = x;
-            newGeometry.y = y;
-            newGeometry.width = width;
-            newGeometry.height = height;
-            var change = new mxGeometryChange(model, cell, newGeometry, true);
+            newGeometry.x = data.geometryX;
+            newGeometry.y = data.geometryY;
+            newGeometry.width = data.geometryWidth;
+            newGeometry.height = data.geometryHeight;
+            if (data.cellType === "vertex") {
+                var change = new mxGeometryChange(model, cell, newGeometry, true);
+                model.execute(change);
+            } else if (data.cellType === "edge") {
+                var change = new mxGeometryChange(model, cell, newGeometry, true);
+                if (data.sourcePoint) {
+                    newGeometry.setTerminalPoint(new mxPoint(data.sourcePoint.x, data.sourcePoint.y), true);
+                } else {
+                    newGeometry.setTerminalPoint(null, true);
+                }
+                if (data.targetPoint) {
+                    newGeometry.setTerminalPoint(new mxPoint(data.targetPoint.x, data.targetPoint.y), false);
+                } else {
+                    newGeometry.setTerminalPoint(null, false);
+                }
+                if (data.points.length > 0) {
+                    newGeometry.points = [];
+                    for (var i = 0; i < data.points.length; i++) {
+                        var point = data.points[i];
+                        newGeometry.points.push(new mxPoint(point.x, point.y));
+                    }
+                }
+                model.execute(change);
+            }
+
+        });
+
+        this.signalRConnection.on("MxTerminalChange", (json) => {
+            var data = JSON.parse(json);
+            var model = this.model;
+            var cell = model.getCell(data.cellId);
+            var terminal = data.terminalId ? model.getCell(data.terminalId) : null;
+            var change = new mxTerminalChange(model, cell, terminal, data.source, true);
+            model.execute(change);
+        });
+
+        this.signalRConnection.on("MxStyleChange", (json) => {
+            var data = JSON.parse(json);
+            var model = this.model;
+            var cell = model.getCell(data.cellId);
+            var change = new mxStyleChange(model, cell, data.style, true);
+            model.execute(change);
+        });
+
+        this.signalRConnection.on("MxChildChange", (json) => {
+            var data = JSON.parse(json);
+            var model = this.model;
+            var child = model.getCell(data.childId);
+            var parent = model.getCell(data.parentId);
+            var change = new mxChildChange(model, parent, child, data.index, true);
+            model.execute(change);
+        });
+
+        this.signalRConnection.on("MxValueChange", (json) => {
+            var data = JSON.parse(json);
+            var model = this.model;
+            var cell = model.getCell(data.cellId);
+            var change = new mxValueChange(model, cell, data.value, true);
             model.execute(change);
         });
 
@@ -208,20 +270,33 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
             var data = JSON.parse(json);
             var cells = data.cells;
             var parent = this.getDefaultParent();
-            for (var i=0;i<cells.length; i++){
-               this.createCellByData(cells[i],parent);
+            for (var i = 0; i < cells.length; i++) {
+                this.createCellByData(cells[i], parent);
             }
             this.refresh();
         });
-        this.signalRConnection.on("AddEdgeOnDiagram", (sourceId, targetId, id, value, style) => {
-            value = value ? value : "";
-            var edge = new mxCell(value, new mxGeometry(), style);
+        this.signalRConnection.on("RemoveCells", (json) => {
+            var data = JSON.parse(json);
+            var cells = [];
+            for (var i = 0; i < data.length; i++) {
+                cells.push(this.getModel().getCell(data[i]));
+            }
+            this.removeCells(cells, undefined, true);
+            this.refresh();
+        });
+        this.signalRConnection.on("AddEdgeOnDiagram", (json) => {
+            var data = JSON.parse(json);
+            //value = value ? value : "";
+            var edge = new mxCell("", new mxGeometry(), data.edgeStyle);
             edge.setEdge(true);
-            var sourceCell = sourceId ? this.getModel().getCell(sourceId) : null;
-            var targetCell = targetId ? this.getModel().getCell(targetId) : null;
-            edge.setId(id);
+            var sourceCell = data.sourceId ? this.getModel().getCell(data.sourceId) : null;
+            var targetCell = data.targetId ? this.getModel().getCell(data.targetId) : null;
+            edge.setId(data.edgeId);
             edge.setTerminal(sourceCell, true);
             edge.setTerminal(targetCell, false);
+            if (targetCell == null) {
+                edge.geometry.setTerminalPoint(new mxPoint(data.pointX, data.pointY), false);
+            }
             var parent = this.getDefaultParent();
             this.getModel().beginUpdate(); // начинаем транзакцию модели
             try {
@@ -3559,37 +3634,41 @@ HoverIcons.prototype.init = function () {
         this.mouseDownPoint = null;
     }));
 
-    // this.graph.addListener(mxEvent.ADD_CELLS, function(sender, evt) {
-    //     var cells = evt.getProperty('cells');
-    //    
-    // });
     this.graph.addCellsToData = function (data, cells) {
         if (cells == null) {
             return;
         }
         for (var i = 0; i < cells.length; i++) {
-            if (cells[i].isVertex()) {
-                console.log(cells[i]);
-                var cellData = {
-                    children: []
-                }
-                var value = cells[i].getValue();
-                var style = cells[i].getStyle();
-                var geometry = cells[i].getGeometry();
-                var id = cells[i].getId()
-                this.addCellsToData(cellData.children, cells[i].children)
-                cellData.x = geometry.x;
-                cellData.y = geometry.y;
-                cellData.width = geometry.width;
-                cellData.height = geometry.height;
-                cellData.id = id;
-                cellData.value = value;
-                cellData.style = style;
-
+            var cellData = {
+                children: []
+            }
+            var value = cells[i].getValue();
+            var style = cells[i].getStyle();
+            var geometry = cells[i].getGeometry();
+            var id = cells[i].getId()
+            this.addCellsToData(cellData.children, cells[i].children)
+            cellData.x = geometry.x;
+            cellData.y = geometry.y;
+            cellData.width = geometry.width;
+            cellData.height = geometry.height;
+            cellData.id = id;
+            cellData.value = value;
+            cellData.style = style;
+            cellData.isVertex = cells[i].isVertex();
+            cellData.isEdge = cells[i].isEdge();
+            if (cellData.isVertex) {
                 data.push(cellData);
+                continue;
+            }
+            if (cellData.isEdge && geometry.sourcePoint && geometry.targetPoint) {
+                cellData.sourcePoint = {x: geometry.sourcePoint.x, y: geometry.sourcePoint.y};
+                cellData.targetPoint = {x: geometry.targetPoint.x, y: geometry.targetPoint.y};
+                data.push(cellData);
+                continue;
             }
         }
     }
+
 
     this.graph.addListener(mxEvent.CELLS_ADDED, function (sender, evt) {
         var cells = evt.getProperty('cells');
@@ -3598,59 +3677,134 @@ HoverIcons.prototype.init = function () {
         };
         this.addCellsToData(data.cells, cells);
 
-        if (this.signalRConnection != null) {
+        if (this.signalRConnection != null && data.cells.length > 0) {
             this.signalRConnection.invoke("AddVertexOnDiagram", JSON.stringify(data)).then(() => {
                 console.log("AddVertexOnDiagram send");
             });
         }
-
-        // else if(cells[i].isEdge()){
-        //     var value = cells[i].getValue();
-        //     var style = cells[i].getStyle();
-        //     var source = cells[i].getTerminal(true);
-        //     var target = cells[i].getTerminal(false);
-        //     var geo = cells[i].geometry;
-        //     if (source!= null && source.isVertex()) {
-        //         var point = geo.getTerminalPoint(false); // вернет точку на целевой стороне фигуры
-        //         var rel = geo.relative;
-        //         if (rel) {
-        //             point.x += source.geometry.width * rel.x;
-        //             point.y += source.geometry.height * rel.y;
-        //         }
-        //     } else if (target != null && target.isVertex()) {
-        //         var point = geo.getTerminalPoint(true); // вернет точку на исходной стороне фигуры
-        //         var rel = geo.relative;
-        //         if (rel) {
-        //             point.x += target.geometry.width * rel.x;
-        //             point.y += target.geometry.height * rel.y;
-        //         }
-        //     }
-        //     var id = cells[i].getId()
-        //     var targetId = target ? target.id : null;
-        //     var sourceId = source ? source.id : null;
-        //     if (this.signalRConnection != null) {
-        //         this.signalRConnection.invoke("AddEdgeOnDiagram", sourceId,targetId, id, value, style).then(() => {
-        //             console.log("AddVertexOnDiagram send");
-        //         });
-        //     }
-        // }
-
     });
 
-    // this.graph.addListener(mxEvent.CELL_CONNECTED, function (sender, evt) {
-    //     var edge = evt.getProperty('edge');
-    //     if (edge.isEdge()) {
-    //         var source = this.getModel().getTerminal(edge, true);
-    //         var target = this.getModel().getTerminal(edge, false);
-    //         var sourcePoint = evt.getProperty('source');
-    //         var targetPoint = evt.getProperty('target');
-    //         var points = edge.geometry.points;
-    //         console.log('Edge connected from ' + source.id + ' at point (' + sourcePoint.x + ', ' + sourcePoint.y + ')' +
-    //             ' to ' + target.id + ' at point (' + targetPoint.x + ', ' + targetPoint.y + ')');
-    //     }
-    // });
+    this.graph.addListener(mxEvent.CELLS_REMOVED, function (sender, evt) {
+        var cells = evt.getProperty('cells');
+        var data = cells.map(cell => cell.id);
+        if (this.signalRConnection != null) {
+            this.signalRConnection.invoke("RemoveCells", JSON.stringify(data)).then(() => {
+                console.log("RemoveCells send");
+            });
+        }
+    });
 
-    // Removes hover icons if mouse leaves the container
+    this.graph.getModel().addListener(mxEvent.CHANGE, function (sender, evt) {
+        var changes = evt.getProperty('edit').changes;
+        if (this.signalRConnection != null) {
+            for (var i = 0; i < changes.length; i++) {
+                if (!changes[i].isSignalRCall) {
+                    if (changes[i] instanceof mxGeometryChange) {
+                        var cell = changes[i].cell;
+                        var data = {};
+                        if (cell.isVertex()) {
+                            var geometry = changes[i].geometry;
+                            data = {
+                                cellType: "vertex",
+                                cellId: cell.id,
+                                geometryX: geometry.x,
+                                geometryY: geometry.y,
+                                geometryWidth: geometry.width,
+                                geometryHeight: geometry.height
+                            }
+                        } else if (cell.isEdge()) {
+                            var geometry = changes[i].geometry;
+                            data = {
+                                cellType: "edge",
+                                cellId: cell.id,
+                                geometryX: geometry.x,
+                                geometryY: geometry.y,
+                                geometryWidth: geometry.width,
+                                geometryHeight: geometry.height,
+                                points: [],
+                                sourcePoint: null,
+                                targetPoint: null
+                            }
+                            if (geometry.sourcePoint) {
+                                data.sourcePoint = {x: geometry.sourcePoint.x, y: geometry.sourcePoint.y}
+                            }
+                            if (geometry.targetPoint) {
+                                data.targetPoint = {x: geometry.targetPoint.x, y: geometry.targetPoint.y}
+                            }
+                            if (geometry.points) {
+                                for (var p = 0; p < geometry.points.length; p++) {
+                                    var point = geometry.points[p];
+                                    data.points.push({x: point.x, y: point.y});
+                                }
+                            }
+                        }
+
+                        this.signalRConnection.invoke("MxGeometryChange", JSON.stringify(data)).then(() => {
+                            console.log("MxGeometryChange send");
+                        });
+                    } else if (changes[i] instanceof mxTerminalChange) {
+                        var data = {
+                            cellId: changes[i].cell.id,
+                            source: changes[i].source, // проверяется какая именно точка изменяется - начальная или конечная
+                            terminalId: changes[i].terminal ? changes[i].terminal.id : null,
+                        }
+                        if (changes[i].previous == null && changes[i].terminal == null) {
+                            continue
+                        }
+                        this.signalRConnection.invoke("MxTerminalChange", JSON.stringify(data)).then(() => {
+                            console.log("MxTerminalChange send");
+                        });
+                    } else if (changes[i] instanceof mxStyleChange) {
+                        var data = {
+                            cellId: changes[i].cell.id,
+                            style: changes[i].style
+                        }
+                        this.signalRConnection.invoke("MxStyleChange", JSON.stringify(data)).then(() => {
+                            console.log("MxStyleChangeChange send");
+                        });
+                    } else if (changes[i] instanceof mxChildChange) {
+                        var data = {
+                            childId: changes[i].child.id,
+                            parentId: changes[i].parent.id,
+                            index: changes[i].index
+                        }
+                        this.signalRConnection.invoke("MxChildChange", JSON.stringify(data)).then(() => {
+                            console.log("MxChildChange send");
+                        });
+                    } else if (changes[i] instanceof mxValueChange) {
+                        var data = {
+                            cellId: changes[i].cell.id,
+                            value: changes[i].value
+                        }
+                        this.signalRConnection.invoke("MxValueChange", JSON.stringify(data)).then(() => {
+                            console.log("MxValueChange send");
+                        });
+                    }
+                }
+            }
+        }
+
+    });
+    this.graph.connectionHandler.addListener(mxEvent.CONNECT, function (sender, evt) {
+        var edge = evt.getProperty('cell');
+        var source = edge.source;
+        var target = edge.target;
+        var data = {
+            edgeId: edge.id,
+            edgeStyle: edge.style,
+            sourceId: source.id,
+            targetId: target ? target.id : null,
+            pointX: target ? null : edge.geometry.targetPoint.x,
+            pointY: target ? null : edge.geometry.targetPoint.y
+        }
+        if (this.graph.signalRConnection != null) {
+            this.graph.signalRConnection.invoke("AddEdgeOnDiagram", JSON.stringify(data)).then(() => {
+                console.log("AddEdgeOnDiagram");
+            });
+        }
+    });
+
+// Removes hover icons if mouse leaves the container
     mxEvent.addListener(this.graph.container, 'mouseleave', mxUtils.bind(this, function (evt) {
         // Workaround for IE11 firing mouseleave for touch in diagram
         if (evt.relatedTarget != null && mxEvent.getSource(evt) == this.graph.container) {
@@ -3658,12 +3812,12 @@ HoverIcons.prototype.init = function () {
         }
     }));
 
-    // Resets current state when in-place editor starts
+// Resets current state when in-place editor starts
     this.graph.addListener(mxEvent.START_EDITING, mxUtils.bind(this, function (evt) {
         this.reset();
     }));
 
-    // Resets current state after update of selection state for touch events
+// Resets current state after update of selection state for touch events
     var graphClick = this.graph.click;
     this.graph.click = mxUtils.bind(this, function (me) {
         graphClick.apply(this.graph, arguments);
@@ -3674,11 +3828,11 @@ HoverIcons.prototype.init = function () {
         }
     });
 
-    // Checks if connection handler was active in mouse move
-    // as workaround for possible double connection inserted
+// Checks if connection handler was active in mouse move
+// as workaround for possible double connection inserted
     var connectionHandlerActive = false;
 
-    // Implements a listener for hover and click handling
+// Implements a listener for hover and click handling
     this.graph.addMouseListener(
         {
             mouseDown: mxUtils.bind(this, function (sender, me) {
@@ -3744,7 +3898,8 @@ HoverIcons.prototype.init = function () {
                 this.resetActiveArrow();
             })
         });
-};
+}
+;
 
 /**
  *
@@ -5950,7 +6105,7 @@ if (typeof mxVertexHandler != 'undefined') {
          * Overriddes to delete label for table cells.
          */
         var graphRemoveCells = Graph.prototype.removeCells;
-        Graph.prototype.removeCells = function (cells, includeEdges) {
+        Graph.prototype.removeCells = function (cells, includeEdges, signalRCall = false) {
             var result = [];
 
             this.model.beginUpdate();
@@ -5997,7 +6152,7 @@ if (typeof mxVertexHandler != 'undefined') {
                     }
                 }
 
-                result = graphRemoveCells.apply(this, [result, includeEdges]);
+                result = graphRemoveCells.apply(this, [result, includeEdges, signalRCall]);
             } finally {
                 this.model.endUpdate();
             }
