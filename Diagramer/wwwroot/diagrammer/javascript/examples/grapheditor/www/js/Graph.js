@@ -182,19 +182,26 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
         newCell.setId(cellData.id);
         if (cellData.isEdge) {
             newCell.setEdge(true);
-            newCell.geometry.setTerminalPoint(cellData.sourcePoint ? new mxPoint(cellData.sourcePoint.x, cellData.sourcePoint.y) : null, true);
-            newCell.geometry.setTerminalPoint(cellData.targetPoint ? new mxPoint(cellData.targetPoint.x, cellData.targetPoint.y) : null, false);
+            newCell.source = cellData.sourceId ? model.getCell(cellData.sourceId) : null;
+            newCell.target = cellData.targetId ? model.getCell(cellData.targetId) : null;
+            if (!newCell.source)
+                newCell.geometry.setTerminalPoint(cellData.sourcePoint ? new mxPoint(cellData.sourcePoint.x, cellData.sourcePoint.y) : null, true);
+            if (!newCell.target)
+                newCell.geometry.setTerminalPoint(cellData.targetPoint ? new mxPoint(cellData.targetPoint.x, cellData.targetPoint.y) : null, false);
+            if (cellData.points.length > 0) {
+                newCell.geometry.points = [];
+                for (var i = 0; i < cellData.points.length; i++) {
+                    var point = cellData.points[i];
+                    newCell.geometry.points.push(new mxPoint(point.x, point.y));
+                }
+            } else {
+                newCell.geometry.points = null;
+            }
         }
         if (cellData.offset) {
             newCell.geometry.offset = new mxPoint(cellData.offset.x, cellData.offset.y);
-            newCell.geometry.relative = true;
         }
-        if (cellData.parentId){
-            newCell.geometry.parent = model.getCell(cellData.parentId);
-        } 
-        if (cellData.sourceId){
-            newCell.geometry.source = model.getCell(cellData.sourceId);
-        }
+        newCell.geometry.relative = cellData.relative;
         model.beginUpdate(); // начинаем транзакцию модели
         try {
             newCell = this.addCell(newCell, parent, undefined, undefined, undefined, true); // добавляем ячейку на граф, передавая родительский элемент
@@ -291,7 +298,7 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
             var data = JSON.parse(json);
             var model = this.model;
             var cell = model.getCell(data.cellId);
-            if (cell){
+            if (cell) {
                 var change = new mxCollapseChange(model, cell, data.collapsed, true);
                 model.execute(change);
             }

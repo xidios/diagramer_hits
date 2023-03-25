@@ -11,6 +11,7 @@ SignalRCalls = function (graph) {
         if (cells == null) {
             return;
         }
+        cells.sort((a, b) => b.isVertex() - a.isVertex());
         for (var i = 0; i < cells.length; i++) {
             var cellData = {
                 children: []
@@ -29,6 +30,7 @@ SignalRCalls = function (graph) {
             cellData.style = style;
             cellData.isVertex = cells[i].isVertex();
             cellData.isEdge = cells[i].isEdge();
+            cellData.relative = geometry.relative;
             cellData.offset = cells[i].geometry.offset ? {
                 x: cells[i].geometry.offset.x,
                 y: cells[i].geometry.offset.y
@@ -37,13 +39,19 @@ SignalRCalls = function (graph) {
                 data.push(cellData);
                 continue;
             }
-            cellData.parentId = geometry.parent ? geometry.parent.id : null;
-            cellData.sourceId = geometry.source ? geometry.source.id : null;
+            cellData.parentId = cells[i].parent ? cells[i].parent.id : null;
+            cellData.sourceId = cells[i].source ? cells[i].source.id : null;
+            cellData.targetId = cells[i].target ? cells[i].target.id : null;
             cellData.sourcePoint = geometry.sourcePoint ? {x: geometry.sourcePoint.x, y: geometry.sourcePoint.y} : null;
             cellData.targetPoint = geometry.targetPoint ? {x: geometry.targetPoint.x, y: geometry.targetPoint.y} : null;
+            cellData.points= [];
+            if (geometry.points) {
+                for (var p = 0; p < geometry.points.length; p++) {
+                    var point = geometry.points[p];
+                    cellData.points.push({x: point.x, y: point.y});
+                }
+            }
             data.push(cellData);
-
-
         }
     }
 
