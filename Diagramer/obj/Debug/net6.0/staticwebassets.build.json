@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "l9fQQUWW+kXG8MoBm6BFHRsRDLfD0JYrOobKFXYJqPc=",
+  "Hash": "Pct5BxwuzAollbQyBxoRjNtrwCWrDZ+OeoJjLuPoZ1U=",
   "Source": "Diagramer",
   "BasePath": "_content/Diagramer",
   "Mode": "Default",
@@ -3041,6 +3041,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\diagrammer\\javascript\\server\\server.js"
+    },
+    {
+      "Identity": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\diagrammer\\javascript\\signalr\\signalrCalls.js",
+      "SourceId": "Diagramer",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\",
+      "BasePath": "_content/Diagramer",
+      "RelativePath": "diagrammer/javascript/signalr/signalrCalls.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\diagrammer\\javascript\\signalr\\signalrCalls.js"
     },
     {
       "Identity": "C:\\Users\\redbu\\RiderProjects\\diagramer_hits\\Diagramer\\wwwroot\\diagrammer\\javascript\\src\\css\\common.css",

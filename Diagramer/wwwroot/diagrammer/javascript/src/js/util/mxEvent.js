@@ -1257,6 +1257,21 @@ var mxEvent =
 	 * Specifies the event name for cellsAdded.
 	 */
 	CELLS_ADDED: 'cellsAdded',
+	
+	/**
+	 * Variable: VERTEX_ADDED
+	 *
+	 * Specifies the event name for cellsAdded.
+	 */
+	VERTEX_ADDED: 'vertexAdded',
+	
+	/**
+	 * Variable: EDGE ADDED
+	 *
+	 * Specifies the event name for cellsAdded.
+	 */
+	
+	EDGE_ADDED:'edgeAdded',
 
 	/**
 	 * Variable: MOVE_CELLS

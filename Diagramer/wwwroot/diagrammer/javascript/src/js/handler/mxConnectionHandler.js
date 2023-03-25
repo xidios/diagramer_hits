@@ -1962,7 +1962,7 @@ mxConnectionHandler.prototype.connect = function(source, target, evt, dropTarget
 				style = this.edgeState.cell.style;
 			}
 
-			edge = this.insertEdge(parent, null, value, source, target, style);
+			edge = this.insertEdge(parent, null, value, source, target, style, true);
 			
 			if (edge != null)
 			{
@@ -2072,11 +2072,11 @@ mxConnectionHandler.prototype.selectCells = function(edge, target)
  * implementation does only use <createEdge> if <factoryMethod> is defined,
  * otherwise <mxGraph.insertEdge> will be used.
  */
-mxConnectionHandler.prototype.insertEdge = function(parent, id, value, source, target, style)
+mxConnectionHandler.prototype.insertEdge = function(parent, id, value, source, target, style, isConnect = false)
 {
 	if (this.factoryMethod == null)
 	{
-		return this.graph.insertEdge(parent, id, value, source, target, style);
+		return this.graph.insertEdge(parent, id, value, source, target, style, isConnect);
 	}
 	else
 	{

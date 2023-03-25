@@ -196,6 +196,7 @@
 function mxGraphModel(root) {
     this.currentEdit = this.createUndoableEdit();
     this.signalRConnection = null;
+    this.signalRCalls = null;
 
     if (root != null) {
         this.setRoot(root);
@@ -204,6 +205,9 @@ function mxGraphModel(root) {
     }
     this.updateSignalRConnection = function (signalRConnection) {
         this.signalRConnection = signalRConnection;
+    }
+    this.addSignalRCalls = function (signalRCalls){
+        this.signalRCalls = signalRCalls;
     }
 };
 
@@ -592,7 +596,7 @@ mxGraphModel.prototype.getParent = function (cell) {
  * child - <mxCell> that specifies the child to be inserted.
  * index - Optional integer that specifies the index of the child.
  */
-mxGraphModel.prototype.add = function (parent, child, index) {
+mxGraphModel.prototype.add = function (parent, child, index, signalRCall = false) {
     if (child != parent && parent != null && child != null) {
         // Appends the child if no index was specified
         if (index == null) {
@@ -600,7 +604,7 @@ mxGraphModel.prototype.add = function (parent, child, index) {
         }
 
         var parentChanged = parent != this.getParent(child);
-        this.execute(new mxChildChange(this, parent, child, index));
+        this.execute(new mxChildChange(this, parent, child, index, signalRCall));
 
         // Maintains the edges parents by moving the edges
         // into the nearest common ancestor of its terminals
@@ -1531,9 +1535,9 @@ mxGraphModel.prototype.getGeometry = function (cell) {
  * cell - <mxCell> whose geometry should be changed.
  * geometry - <mxGeometry> that defines the new geometry.
  */
-mxGraphModel.prototype.setGeometry = function (cell, geometry) {
+mxGraphModel.prototype.setGeometry = function (cell, geometry, signalRCall = false) {
     if (geometry != this.getGeometry(cell)) {
-        this.execute(new mxGeometryChange(this, cell, geometry));
+        this.execute(new mxGeometryChange(this, cell, geometry, signalRCall));
     }
 
     return geometry;
@@ -1793,7 +1797,7 @@ mxGraphModel.prototype.beginUpdate = function () {
  * function is invoked, that is, on undo and redo of
  * the edit.
  */
-mxGraphModel.prototype.endUpdate = function () {
+mxGraphModel.prototype.endUpdate = function (signalRCall = false) {
     this.updateLevel--;
 
     if (this.updateLevel == 0) {
@@ -1809,7 +1813,9 @@ mxGraphModel.prototype.endUpdate = function () {
                 this.fireEvent(new mxEventObject(mxEvent.BEFORE_UNDO, 'edit', this.currentEdit));
                 var tmp = this.currentEdit;
                 this.currentEdit = this.createUndoableEdit();
-                tmp.notify();
+                if (!signalRCall){
+                    tmp.notify();
+                }
                 this.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', tmp));
             }
         } finally {
@@ -2361,11 +2367,12 @@ mxGeometryChange.prototype.execute = function () {
  * Constructs a change of a collapsed state in the
  * specified model.
  */
-function mxCollapseChange(model, cell, collapsed) {
+function mxCollapseChange(model, cell, collapsed,isSignalRCall = false) {
     this.model = model;
     this.cell = cell;
     this.collapsed = collapsed;
     this.previous = collapsed;
+    this.isSignalRCall = isSignalRCall;
 };
 
 /**

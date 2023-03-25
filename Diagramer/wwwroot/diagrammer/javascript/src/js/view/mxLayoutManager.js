@@ -246,7 +246,7 @@ mxLayoutManager.prototype.beforeUndo = function(undoableEdit)
 
 /**
  * Function: cellsMoved
- * 
+ *
  * Called from <moveHandler>.
  *
  * Parameters:

@@ -156,4 +156,10 @@ public class DiagrammerHub : Hub
         //TODO: OtherInGroup
         await Clients.Others.SendAsync("MxChildChange", json);
     }
+    public async Task MxCollapseChange(string json)
+    {
+        //TODO: OtherInGroup
+        await Clients.Others.SendAsync("MxCollapseChange", json);
+    }
+    
 }

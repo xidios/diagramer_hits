@@ -4222,10 +4222,10 @@ mxGraph.prototype.createVertex = function (parent, id, value,
  * target - <mxCell> that defines the target of the edge.
  * style - Optional string that defines the cell style.
  */
-mxGraph.prototype.insertEdge = function (parent, id, value, source, target, style) {
+mxGraph.prototype.insertEdge = function (parent, id, value, source, target, style, isConnect = false) {
     var edge = this.createEdge(parent, id, value, source, target, style);
 
-    return this.addEdge(edge, parent, source, target);
+    return this.addEdge(edge, parent, source, target, undefined, isConnect);
 };
 
 /**
@@ -4262,8 +4262,8 @@ mxGraph.prototype.createEdge = function (parent, id, value, source, target, styl
  * target - Optional <mxCell> that represents the target terminal.
  * index - Optional index to insert the cells at. Default is to append.
  */
-mxGraph.prototype.addEdge = function (edge, parent, source, target, index) {
-    return this.addCell(edge, parent, index, source, target);
+mxGraph.prototype.addEdge = function (edge, parent, source, target, index, isConnect = false) {
+    return this.addCell(edge, parent, index, source, target, false, isConnect);
 };
 
 /**
@@ -4282,8 +4282,8 @@ mxGraph.prototype.addEdge = function (edge, parent, source, target, index) {
  * source - Optional <mxCell> that represents the source terminal.
  * target - Optional <mxCell> that represents the target terminal.
  */
-mxGraph.prototype.addCell = function (cell, parent, index, source, target, signalRCall = false) {
-    return this.addCells([cell], parent, index, source, target,undefined,signalRCall)[0];
+mxGraph.prototype.addCell = function (cell, parent, index, source, target, signalRCall = false, isConnect = false) {
+    return this.addCells([cell], parent, index, source, target,undefined,signalRCall, isConnect)[0];
 };
 
 /**
@@ -4305,7 +4305,7 @@ mxGraph.prototype.addCell = function (cell, parent, index, source, target, signa
  * absolute - Optional boolean indicating of cells should be kept at
  * their absolute position. Default is false.
  */
-mxGraph.prototype.addCells = function (cells, parent, index, source, target, absolute, signalRCall = false) {
+mxGraph.prototype.addCells = function (cells, parent, index, source, target, absolute, signalRCall = false, isConnect = false) {
     if (parent == null) {
         parent = this.getDefaultParent();
     }
@@ -4316,7 +4316,7 @@ mxGraph.prototype.addCells = function (cells, parent, index, source, target, abs
 
     this.model.beginUpdate();
     try {
-        this.cellsAdded(cells, parent, index, source, target, (absolute != null) ? absolute : false, true, undefined, signalRCall);
+        this.cellsAdded(cells, parent, index, source, target, (absolute != null) ? absolute : false, true, undefined, signalRCall,isConnect);
         if (!signalRCall) {
             this.fireEvent(new mxEventObject(mxEvent.ADD_CELLS, 'cells', cells,
                 'parent', parent, 'index', index, 'source', source, 'target', target));
@@ -4335,7 +4335,7 @@ mxGraph.prototype.addCells = function (cells, parent, index, source, target, abs
  * Adds the specified cells to the given parent. This method fires
  * <mxEvent.CELLS_ADDED> while the transaction is in progress.
  */
-mxGraph.prototype.cellsAdded = function (cells, parent, index, source, target, absolute, constrain, extend, signalRCall = false) {
+mxGraph.prototype.cellsAdded = function (cells, parent, index, source, target, absolute, constrain, extend, signalRCall = false, isConnect = false) {
     if (cells != null && parent != null && index != null) {
         this.model.beginUpdate();
         try {
@@ -4370,7 +4370,7 @@ mxGraph.prototype.cellsAdded = function (cells, parent, index, source, target, a
                                 geo.y = Math.max(0, geo.y);
                             }
 
-                            this.model.setGeometry(cells[i], geo);
+                            this.model.setGeometry(cells[i], geo, signalRCall);
                         }
                     }
 
@@ -4380,7 +4380,7 @@ mxGraph.prototype.cellsAdded = function (cells, parent, index, source, target, a
                         index--;
                     }
 
-                    this.model.add(parent, cells[i], index + i);
+                    this.model.add(parent, cells[i], index + i,signalRCall);
 
                     if (this.autoSizeCellsOnAdd) {
                         this.autoSizeCell(cells[i], true);
@@ -4408,7 +4408,7 @@ mxGraph.prototype.cellsAdded = function (cells, parent, index, source, target, a
                     }
                 }
             }
-            if (!signalRCall){
+            if (!signalRCall && !isConnect){
                 this.fireEvent(new mxEventObject(mxEvent.CELLS_ADDED, 'cells', cells,
                     'parent', parent, 'index', index, 'source', source, 'target', target,
                     'absolute', absolute));
