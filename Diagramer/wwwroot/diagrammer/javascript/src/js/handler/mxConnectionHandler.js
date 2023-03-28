@@ -176,6 +176,10 @@ function mxConnectionHandler(graph, factoryMethod)
 		
 		this.graph.addListener(mxEvent.ESCAPE, this.escapeHandler);
 	}
+	this.signalRCalls = null;
+	this.addSignalRCalls = function (signalRCalls){
+		this.signalRCalls = signalRCalls;
+	}
 };
 
 /**

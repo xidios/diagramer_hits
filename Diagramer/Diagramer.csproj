@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Models\mxGraph\JsonDeserialization" />
       <Folder Include="wwwroot\diagrammer" />
     </ItemGroup>
 

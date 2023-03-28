@@ -131,13 +131,13 @@
 				var groupTask = @ViewBag.IsGroupTask.ToString().ToLower();
 				if (groupTask){
 					var connection = new signalR.HubConnectionBuilder().withUrl("/diagrammerHub").build();
+					var roomId = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@ViewBag.RoomId))";
 					connection.on("ReceiveMessage", function (message) {
 						console.log(message);
 					});
 					connection.start().then(() => {
-						
 					  console.log("Connected");
-					  connection.invoke("JoinRoom", "@Html.Raw(HttpUtility.JavaScriptStringEncode(@ViewBag.TaskId))","@Html.Raw(HttpUtility.JavaScriptStringEncode(@ViewBag.GroupId))").then(() => {
+					  connection.invoke("JoinRoom", roomId).then(() => {
 					  console.log("Joined group");
 					  editor.graph.updateSignalRConnection(connection)
 					  });

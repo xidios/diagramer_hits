@@ -4,6 +4,7 @@ SignalRCalls = function (graph) {
     this.addSignalRCallsToModel = function () {
         this.model = this.graph.getModel();
         this.model.addSignalRCalls(this);
+        this.graph.connectionHandler.addSignalRCalls(this);
     }
     this.addSignalRCallsToModel();
 
@@ -21,34 +22,37 @@ SignalRCalls = function (graph) {
             var geometry = cells[i].getGeometry();
             var id = cells[i].getId()
             this.addCellsToData(cellData.children, cells[i].children)
-            cellData.x = geometry.x;
-            cellData.y = geometry.y;
-            cellData.width = geometry.width;
-            cellData.height = geometry.height;
+            cellData.geometry = {
+                cellId : cells[i].id,
+                x: geometry.x,
+                y: geometry.y,
+                width: geometry.width,
+                height: geometry.height,
+                relative: geometry.relative,
+                offset: cells[i].geometry.offset ? {
+                    x: cells[i].geometry.offset.x,
+                    y: cells[i].geometry.offset.y
+                } : null,
+                sourcePoint : geometry.sourcePoint ? {x: geometry.sourcePoint.x, y: geometry.sourcePoint.y} : null,
+                targetPoint : geometry.targetPoint ? {x: geometry.targetPoint.x, y: geometry.targetPoint.y} : null,
+                points : []
+            };
             cellData.id = id;
             cellData.value = value;
             cellData.style = style;
             cellData.isVertex = cells[i].isVertex();
             cellData.isEdge = cells[i].isEdge();
-            cellData.relative = geometry.relative;
-            cellData.offset = cells[i].geometry.offset ? {
-                x: cells[i].geometry.offset.x,
-                y: cells[i].geometry.offset.y
-            } : null;
+            cellData.parentId = cells[i].parent ? cells[i].parent.id : null;
             if (cellData.isVertex) {
                 data.push(cellData);
                 continue;
             }
-            cellData.parentId = cells[i].parent ? cells[i].parent.id : null;
             cellData.sourceId = cells[i].source ? cells[i].source.id : null;
             cellData.targetId = cells[i].target ? cells[i].target.id : null;
-            cellData.sourcePoint = geometry.sourcePoint ? {x: geometry.sourcePoint.x, y: geometry.sourcePoint.y} : null;
-            cellData.targetPoint = geometry.targetPoint ? {x: geometry.targetPoint.x, y: geometry.targetPoint.y} : null;
-            cellData.points= [];
             if (geometry.points) {
                 for (var p = 0; p < geometry.points.length; p++) {
                     var point = geometry.points[p];
-                    cellData.points.push({x: point.x, y: point.y});
+                    cellData.geometry.points.push({x: point.x, y: point.y});
                 }
             }
             data.push(cellData);
@@ -57,14 +61,12 @@ SignalRCalls = function (graph) {
 
     this.graph.addListener(mxEvent.CELLS_ADDED, function (sender, evt) {
         var cells = evt.getProperty('cells');
-        var data = {
-            cells: []
-        };
-        this.signalRCalls.addCellsToData(data.cells, cells);
+        var data = [];
+        this.signalRCalls.addCellsToData(data, cells);
 
-        if (this.signalRCalls.graph.signalRConnection != null && data.cells.length > 0) {
-            this.signalRCalls.graph.signalRConnection.invoke("AddVertexOnDiagram", JSON.stringify(data)).then(() => {
-                console.log("AddVertexOnDiagram send");
+        if (this.signalRCalls.graph.signalRConnection != null && data.length > 0) {
+            this.signalRCalls.graph.signalRConnection.invoke("AddCellsOnDiagram", JSON.stringify(data)).then(() => {
+                console.log("AddCellsOnDiagram send");
             });
         }
     });
@@ -81,10 +83,10 @@ SignalRCalls = function (graph) {
                             data = {
                                 cellType: "vertex",
                                 cellId: cell.id,
-                                geometryX: geometry.x,
-                                geometryY: geometry.y,
-                                geometryWidth: geometry.width,
-                                geometryHeight: geometry.height,
+                                x: geometry.x,
+                                y: geometry.y,
+                                width: geometry.width,
+                                height: geometry.height,
                                 offset: geometry.offset ? {x: geometry.offset.x, y: geometry.offset.y} : null
                             }
                         } else if (cell.isEdge()) {
@@ -92,10 +94,10 @@ SignalRCalls = function (graph) {
                             data = {
                                 cellType: "edge",
                                 cellId: cell.id,
-                                geometryX: geometry.x,
-                                geometryY: geometry.y,
-                                geometryWidth: geometry.width,
-                                geometryHeight: geometry.height,
+                                x: geometry.x,
+                                y: geometry.y,
+                                width: geometry.width,
+                                height: geometry.height,
                                 points: [],
                                 sourcePoint: null,
                                 targetPoint: null,
@@ -169,6 +171,24 @@ SignalRCalls = function (graph) {
             }
         }
 
+    });
+    this.graph.connectionHandler.addListener(mxEvent.CONNECT, function (sender, evt) {
+        var edge = evt.getProperty('cell');
+        var source = edge.source;
+        var target = edge.target;
+        var data = {
+            edgeId: edge.id,
+            edgeStyle: edge.style,
+            sourceId: source.id,
+            targetId: target ? target.id : null,
+            pointX: target ? null : edge.geometry.targetPoint.x,
+            pointY: target ? null : edge.geometry.targetPoint.y
+        }
+        if (this.signalRCalls.graph.signalRConnection != null) {
+            this.signalRCalls.graph.signalRConnection.invoke("AddEdgeOnDiagram", JSON.stringify(data)).then(() => {
+                console.log("AddEdgeOnDiagram");
+            });
+        }
     });
 }
 

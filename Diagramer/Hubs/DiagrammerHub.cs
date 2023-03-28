@@ -4,10 +4,12 @@ using Diagramer.Data;
 using Diagramer.Models;
 using Diagramer.Models.Hub;
 using Diagramer.Models.Identity;
+using Diagramer.Models.mxGraph;
 using Diagramer.Services;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Hub = Microsoft.AspNetCore.SignalR.Hub;
 using Task = System.Threading.Tasks.Task;
 
@@ -27,39 +29,28 @@ public class DiagrammerHub : Hub
     }
 
 
-    public async Task JoinRoom(string taskId, string groupId)
+    public async Task JoinRoom(string roomId)
     {
         string connectionId = Context.ConnectionId;
         var userId = _userService.GetCurrentUserGuid(Context.User);
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        var task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == Guid.Parse(taskId));
-        if (task == null)
-        {
-            return;
-        }
 
-        var group = await _context.Groups.FirstOrDefaultAsync(g => g.Id == Guid.Parse(groupId));
-        if (group == null)
-        {
-            return;
-        }
 
-        var room = await _context.Rooms.FirstOrDefaultAsync(r => r.GroupId == group.Id && r.TaskId == task.Id);
-        if (room == null)
-        {
-            room = await CreateRoom(task, group);
-        }
+        var room = await _context.Rooms
+            .Include(r=>r.Group)
+            .Include(r=>r.Task)
+            .FirstOrDefaultAsync(r => r.Id == Guid.Parse(roomId));
 
         var hubConnection = new HubConnection
         {
             Id = connectionId,
             //TODO: У задания вставить ID.
-            TaskId = task.Id,
-            Task = task,
+            TaskId = room.Task.Id,
+            Task = room.Task,
             UserId = userId,
             User = user,
-            Group = group,
-            GroupId = group.Id,
+            Group = room.Group,
+            GroupId = room.Group.Id,
             Room = room,
             RoomId = room.Id
         };
@@ -95,19 +86,19 @@ public class DiagrammerHub : Hub
         await Clients.All.SendAsync("ReceiveMessage", message);
     }
 
-    public async Task<Room> CreateRoom(Models.Task task, Group group)
-    {
-        Room room = new Room
-        {
-            Group = group,
-            GroupId = group.Id,
-            Task = task,
-            TaskId = task.Id
-        };
-        await _context.Rooms.AddAsync(room);
-        await _context.SaveChangesAsync();
-        return room;
-    }
+    // public async Task<Room> CreateRoom(Models.Task task, Group group)
+    // {
+    //     Room room = new Room
+    //     {
+    //         Group = group,
+    //         GroupId = group.Id,
+    //         Task = task,
+    //         TaskId = task.Id
+    //     };
+    //     await _context.Rooms.AddAsync(room);
+    //     await _context.SaveChangesAsync();
+    //     return room;
+    // }
 
     public async Task MoveCells(string[] cellIds, int dx, int dy,bool clone)
     {
@@ -116,9 +107,10 @@ public class DiagrammerHub : Hub
     }
     
 
-    public async Task AddVertexOnDiagram(string json)
+    public async Task AddCellsOnDiagram(string json)
     {
-        await Clients.Others.SendAsync("AddVertexOnDiagram",  json);
+        List<Cell> cells = JsonConvert.DeserializeObject<List<Cell>>(json); 
+        await Clients.Others.SendAsync("AddCellsOnDiagram",  json);
     }
     public async Task RemoveCells(string json)
     {
@@ -132,6 +124,7 @@ public class DiagrammerHub : Hub
     public async Task MxGeometryChange(string json)
     {
         //TODO: OtherInGroup
+        Geometry geometry = JsonConvert.DeserializeObject<Geometry>(json);
         await Clients.Others.SendAsync("MxGeometryChange", json);
     }
     
