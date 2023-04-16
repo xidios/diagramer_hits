@@ -108,9 +108,18 @@
 			// Fixes possible asynchronous requests
 			mxUtils.getAll([bundle, STYLE_PATH + '/default.xml'], function(xhr)
 			{
-				var xml = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@Model.XML))";
+				var groupTask = @ViewBag.IsGroupTask.ToString().ToLower();
+				var xml = "";
+				if (groupTask){
+					xml = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@ViewBag.Diagram))";
+					console.log(xml);
+				}
+				else {
+					xml = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@Model.XML))";
+				}
+				
 				window.DIAGRAM_ID = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@Model.Id.ToString()))";
-				console.log(xml);
+				
 				
 				// Adds bundle text to resources
 				mxResources.parse(xhr[0].getText());
@@ -127,8 +136,7 @@
 				editor.setGraphXml(doc.documentElement);
 				editorUI = new EditorUi(editor);
 				editor.graph.refresh();
-				console.log(editor.graph);
-				var groupTask = @ViewBag.IsGroupTask.ToString().ToLower();
+				
 				if (groupTask){
 					var connection = new signalR.HubConnectionBuilder().withUrl("/diagrammerHub").build();
 					var roomId = "@Html.Raw(HttpUtility.JavaScriptStringEncode(@ViewBag.RoomId))";
@@ -139,7 +147,7 @@
 					  console.log("Connected");
 					  connection.invoke("JoinRoom", roomId).then(() => {
 					  console.log("Joined group");
-					  editor.graph.updateSignalRConnection(connection)
+					  editor.graph.updateSignalRConnection(connection,roomId)
 					  });
 					}).catch(err => console.error(err));
 					function sendMessage() {

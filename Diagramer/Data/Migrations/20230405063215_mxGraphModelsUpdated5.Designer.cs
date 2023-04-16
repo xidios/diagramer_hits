@@ -3,6 +3,7 @@ using System;
 using Diagramer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Diagramer.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230405063215_mxGraphModelsUpdated5")]
+    partial class mxGraphModelsUpdated5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
@@ -316,7 +318,7 @@ namespace Diagramer.Data.Migrations
                     b.Property<Guid?>("MxGeometryId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("MxGraphModelId")
+                    b.Property<Guid?>("MxGraphModelId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ParentId")
@@ -332,6 +334,7 @@ namespace Diagramer.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("MxCellId");
@@ -791,15 +794,12 @@ namespace Diagramer.Data.Migrations
                         .WithOne("MxCell")
                         .HasForeignKey("Diagramer.Models.mxGraph.MxCell", "MxGeometryId");
 
-                    b.HasOne("Diagramer.Models.mxGraph.MxGraphModel", "MxGraphModel")
+                    b.HasOne("Diagramer.Models.mxGraph.MxGraphModel", null)
                         .WithMany("Cells")
                         .HasForeignKey("MxGraphModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("MxGeometry");
-
-                    b.Navigation("MxGraphModel");
                 });
 
             modelBuilder.Entity("Diagramer.Models.mxGraph.MxPoint", b =>

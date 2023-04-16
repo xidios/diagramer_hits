@@ -639,7 +639,6 @@ function mxGraph(container, model, renderHint, stylesheet) {
     // the createHandlers call is executed regardless of the
     // arguments passed into the ctor).
     this.mouseListeners = null;
-    this.signalRConnection = null;
     // Converts the renderHint into a dialect
     this.renderHint = renderHint;
 
@@ -691,16 +690,6 @@ if (mxLoadResources) {
     mxResources.add(mxClient.basePath + '/resources/graph');
 } else {
     mxClient.defaultBundles.push(mxClient.basePath + '/resources/graph');
-}
-
-
-/* SIGNALR
-* 
-* 
-* */
-mxGraph.updateSignalRConnection = function (signalRConnection) {
-    this.signalRConnection = signalRConnection;
-
 }
 
 
@@ -1937,22 +1926,6 @@ mxGraph.prototype.getSelectionCellsForChanges = function (changes, ignoreFn) {
  * changes - Array that contains the individual changes.
  */
 mxGraph.prototype.graphModelChanged = function (changes, signalRCall = false) {
-    if (this.signalRConnection != null) {
-        for (var i = 0; i < changes.length; i++) {
-            if (changes[i] instanceof mxGeometryChange) {
-                if (!changes[i].isSignalRCall) {
-                    var cell = changes[i].cell;
-                    var model = this.getModel();
-                    var geometry = changes[i].geometry;
-                    var previous = changes[i].previous;
-                    // this.signalRConnection.invoke("SendMxGeometryChange", cell.id, geometry.x, geometry.y, geometry.width, geometry.height).then(() => {
-                    //     console.log("MxGeometryChange send");
-                    // });
-                }
-            }
-        }
-    }
-
     for (var i = 0; i < changes.length; i++) {
         this.processChange(changes[i]);
     }

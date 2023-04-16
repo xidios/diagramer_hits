@@ -195,16 +195,12 @@
  */
 function mxGraphModel(root) {
     this.currentEdit = this.createUndoableEdit();
-    this.signalRConnection = null;
     this.signalRCalls = null;
 
     if (root != null) {
         this.setRoot(root);
     } else {
         this.clear();
-    }
-    this.updateSignalRConnection = function (signalRConnection) {
-        this.signalRConnection = signalRConnection;
     }
     this.addSignalRCalls = function (signalRCalls){
         this.signalRCalls = signalRCalls;

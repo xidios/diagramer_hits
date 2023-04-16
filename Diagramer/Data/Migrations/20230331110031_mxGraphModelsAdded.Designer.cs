@@ -3,6 +3,7 @@ using System;
 using Diagramer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Diagramer.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230331110031_mxGraphModelsAdded")]
+    partial class mxGraphModelsAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
@@ -191,18 +193,12 @@ namespace Diagramer.Data.Migrations
                     b.Property<Guid>("GroupId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("MxGraphModelId")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("TaskId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("MxGraphModelId")
-                        .IsUnique();
 
                     b.HasIndex("TaskId");
 
@@ -284,27 +280,17 @@ namespace Diagramer.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("As")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("MxGeometryId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("MxArrayId");
-
-                    b.HasIndex("MxGeometryId")
-                        .IsUnique();
 
                     b.ToTable("MxArrays");
                 });
 
             modelBuilder.Entity("Diagramer.Models.mxGraph.MxCell", b =>
                 {
-                    b.Property<Guid>("MxCellId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Id")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("IsEdge")
@@ -313,31 +299,38 @@ namespace Diagramer.Data.Migrations
                     b.Property<int>("IsVertex")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid?>("MxGeometryId")
+                    b.Property<Guid>("MxCellId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("MxGraphModelId")
+                    b.Property<Guid>("MxGeometryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("MxGraphModelId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ParentId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("SourceId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Style")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TargetId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("MxCellId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("MxGeometryId")
-                        .IsUnique();
+                    b.HasIndex("MxGeometryId");
 
                     b.HasIndex("MxGraphModelId");
 
@@ -348,9 +341,6 @@ namespace Diagramer.Data.Migrations
                 {
                     b.Property<Guid>("MxGraphModelId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("RoomId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("MxGraphModelId");
@@ -365,6 +355,7 @@ namespace Diagramer.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("As")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("MxArrayId")
@@ -604,18 +595,19 @@ namespace Diagramer.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("ArrayMxArrayId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("As")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CellId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<float>("Height")
                         .HasColumnType("REAL");
-
-                    b.Property<Guid>("MxCellId")
-                        .HasColumnType("TEXT");
 
                     b.Property<int>("Relative")
                         .HasColumnType("INTEGER");
@@ -630,6 +622,8 @@ namespace Diagramer.Data.Migrations
                         .HasColumnType("REAL");
 
                     b.HasKey("MxGeometryId");
+
+                    b.HasIndex("ArrayMxArrayId");
 
                     b.ToTable("MxGeometries");
                 });
@@ -759,10 +753,6 @@ namespace Diagramer.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Diagramer.Models.mxGraph.MxGraphModel", "MxGraphModel")
-                        .WithOne("Room")
-                        .HasForeignKey("Diagramer.Models.Hub.Room", "MxGraphModelId");
-
                     b.HasOne("Diagramer.Models.Task", "Task")
                         .WithMany()
                         .HasForeignKey("TaskId")
@@ -771,50 +761,33 @@ namespace Diagramer.Data.Migrations
 
                     b.Navigation("Group");
 
-                    b.Navigation("MxGraphModel");
-
                     b.Navigation("Task");
-                });
-
-            modelBuilder.Entity("Diagramer.Models.mxGraph.MxArray", b =>
-                {
-                    b.HasOne("MxGeometry", "MxGeometry")
-                        .WithOne("Array")
-                        .HasForeignKey("Diagramer.Models.mxGraph.MxArray", "MxGeometryId");
-
-                    b.Navigation("MxGeometry");
                 });
 
             modelBuilder.Entity("Diagramer.Models.mxGraph.MxCell", b =>
                 {
                     b.HasOne("MxGeometry", "MxGeometry")
-                        .WithOne("MxCell")
-                        .HasForeignKey("Diagramer.Models.mxGraph.MxCell", "MxGeometryId");
-
-                    b.HasOne("Diagramer.Models.mxGraph.MxGraphModel", "MxGraphModel")
-                        .WithMany("Cells")
-                        .HasForeignKey("MxGraphModelId")
+                        .WithMany()
+                        .HasForeignKey("MxGeometryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("MxGeometry");
+                    b.HasOne("Diagramer.Models.mxGraph.MxGraphModel", null)
+                        .WithMany("Cells")
+                        .HasForeignKey("MxGraphModelId");
 
-                    b.Navigation("MxGraphModel");
+                    b.Navigation("MxGeometry");
                 });
 
             modelBuilder.Entity("Diagramer.Models.mxGraph.MxPoint", b =>
                 {
-                    b.HasOne("Diagramer.Models.mxGraph.MxArray", "MxArray")
-                        .WithMany("MxPoints")
+                    b.HasOne("Diagramer.Models.mxGraph.MxArray", null)
+                        .WithMany("MxPoint")
                         .HasForeignKey("MxArrayId");
 
-                    b.HasOne("MxGeometry", "MxGeometry")
+                    b.HasOne("MxGeometry", null)
                         .WithMany("Position")
                         .HasForeignKey("MxGeometryId");
-
-                    b.Navigation("MxArray");
-
-                    b.Navigation("MxGeometry");
                 });
 
             modelBuilder.Entity("Diagramer.Models.Task", b =>
@@ -900,6 +873,17 @@ namespace Diagramer.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MxGeometry", b =>
+                {
+                    b.HasOne("Diagramer.Models.mxGraph.MxArray", "Array")
+                        .WithMany()
+                        .HasForeignKey("ArrayMxArrayId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Array");
+                });
+
             modelBuilder.Entity("Diagramer.Models.Group", b =>
                 {
                     b.Navigation("Answers");
@@ -917,14 +901,12 @@ namespace Diagramer.Data.Migrations
 
             modelBuilder.Entity("Diagramer.Models.mxGraph.MxArray", b =>
                 {
-                    b.Navigation("MxPoints");
+                    b.Navigation("MxPoint");
                 });
 
             modelBuilder.Entity("Diagramer.Models.mxGraph.MxGraphModel", b =>
                 {
                     b.Navigation("Cells");
-
-                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Diagramer.Models.Subject", b =>
@@ -939,10 +921,6 @@ namespace Diagramer.Data.Migrations
 
             modelBuilder.Entity("MxGeometry", b =>
                 {
-                    b.Navigation("Array");
-
-                    b.Navigation("MxCell");
-
                     b.Navigation("Position");
                 });
 #pragma warning restore 612, 618

@@ -3,6 +3,7 @@ using System;
 using Diagramer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Diagramer.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230401064231_mxGraphModelsUpdated4")]
+    partial class mxGraphModelsUpdated4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
@@ -191,18 +193,12 @@ namespace Diagramer.Data.Migrations
                     b.Property<Guid>("GroupId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("MxGraphModelId")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("TaskId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("MxGraphModelId")
-                        .IsUnique();
 
                     b.HasIndex("TaskId");
 
@@ -316,7 +312,7 @@ namespace Diagramer.Data.Migrations
                     b.Property<Guid?>("MxGeometryId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("MxGraphModelId")
+                    b.Property<Guid?>("MxGraphModelId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ParentId")
@@ -332,6 +328,7 @@ namespace Diagramer.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("MxCellId");
@@ -348,9 +345,6 @@ namespace Diagramer.Data.Migrations
                 {
                     b.Property<Guid>("MxGraphModelId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("RoomId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("MxGraphModelId");
@@ -759,10 +753,6 @@ namespace Diagramer.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Diagramer.Models.mxGraph.MxGraphModel", "MxGraphModel")
-                        .WithOne("Room")
-                        .HasForeignKey("Diagramer.Models.Hub.Room", "MxGraphModelId");
-
                     b.HasOne("Diagramer.Models.Task", "Task")
                         .WithMany()
                         .HasForeignKey("TaskId")
@@ -770,8 +760,6 @@ namespace Diagramer.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Group");
-
-                    b.Navigation("MxGraphModel");
 
                     b.Navigation("Task");
                 });
@@ -791,21 +779,18 @@ namespace Diagramer.Data.Migrations
                         .WithOne("MxCell")
                         .HasForeignKey("Diagramer.Models.mxGraph.MxCell", "MxGeometryId");
 
-                    b.HasOne("Diagramer.Models.mxGraph.MxGraphModel", "MxGraphModel")
+                    b.HasOne("Diagramer.Models.mxGraph.MxGraphModel", null)
                         .WithMany("Cells")
                         .HasForeignKey("MxGraphModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("MxGeometry");
-
-                    b.Navigation("MxGraphModel");
                 });
 
             modelBuilder.Entity("Diagramer.Models.mxGraph.MxPoint", b =>
                 {
                     b.HasOne("Diagramer.Models.mxGraph.MxArray", "MxArray")
-                        .WithMany("MxPoints")
+                        .WithMany("MxPoint")
                         .HasForeignKey("MxArrayId");
 
                     b.HasOne("MxGeometry", "MxGeometry")
@@ -917,14 +902,12 @@ namespace Diagramer.Data.Migrations
 
             modelBuilder.Entity("Diagramer.Models.mxGraph.MxArray", b =>
                 {
-                    b.Navigation("MxPoints");
+                    b.Navigation("MxPoint");
                 });
 
             modelBuilder.Entity("Diagramer.Models.mxGraph.MxGraphModel", b =>
                 {
                     b.Navigation("Cells");
-
-                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Diagramer.Models.Subject", b =>

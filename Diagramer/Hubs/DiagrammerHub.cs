@@ -5,6 +5,7 @@ using Diagramer.Models;
 using Diagramer.Models.Hub;
 using Diagramer.Models.Identity;
 using Diagramer.Models.mxGraph;
+using Diagramer.Models.MxGraphData;
 using Diagramer.Services;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.SignalR;
@@ -20,7 +21,8 @@ public class DiagrammerHub : Hub
 {
     private ApplicationDbContext _context;
     private readonly IUserService _userService;
-
+    //TODO: изменить
+    private static Dictionary<string, MxGraphModel> RoomGraphModel = new Dictionary<string, MxGraphModel>();
 
     public DiagrammerHub(ApplicationDbContext context, IUserService userService)
     {
@@ -35,11 +37,24 @@ public class DiagrammerHub : Hub
         var userId = _userService.GetCurrentUserGuid(Context.User);
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
-
         var room = await _context.Rooms
-            .Include(r=>r.Group)
-            .Include(r=>r.Task)
+            .Include(r => r.Group)
+            .Include(r => r.Task)
             .FirstOrDefaultAsync(r => r.Id == Guid.Parse(roomId));
+
+        if (!RoomGraphModel.ContainsKey(roomId))
+        {
+            var graph = await _context.MxGraphModels
+                .Include(g => g.Cells)
+                .ThenInclude(c => c.MxGeometry)
+                .ThenInclude(g => g.Position)
+                .Include(g => g.Cells)
+                .ThenInclude(c => c.MxGeometry)
+                .ThenInclude(g => g.Array)
+                .ThenInclude(a => a.MxPoints)
+                .FirstOrDefaultAsync(g => g.RoomId == room.Id);
+            RoomGraphModel.Add(roomId, graph);
+        }
 
         var hubConnection = new HubConnection
         {
@@ -100,59 +115,269 @@ public class DiagrammerHub : Hub
     //     return room;
     // }
 
-    public async Task MoveCells(string[] cellIds, int dx, int dy,bool clone)
+    public async Task MoveCells(string[] cellIds, int dx, int dy, bool clone)
     {
         //TODO: OtherInGroup
         await Clients.Others.SendAsync("MoveCells", cellIds, dx, dy);
     }
-    
 
-    public async Task AddCellsOnDiagram(string json)
+    private MxPoint? CreateNewPointIfExists(MxGeometry newGeometry, MxPointData point, string asPoint)
     {
-        List<Cell> cells = JsonConvert.DeserializeObject<List<Cell>>(json); 
-        await Clients.Others.SendAsync("AddCellsOnDiagram",  json);
+        if (point != null)
+        {
+            var newPoint = new MxPoint()
+            {
+                MxGeometry = newGeometry, MxGeometryId = newGeometry.MxGeometryId, X = point.X,
+                Y = point.Y, As = asPoint
+            };
+            newGeometry.Position.Add(newPoint);
+            return newPoint;
+        }
+
+        return null;
     }
-    public async Task RemoveCells(string json)
+
+    private async Task CreateNewCells(List<MxCellData> cells, string roomId)
     {
-        await Clients.Others.SendAsync("RemoveCells",  json);
+        var graph = RoomGraphModel[roomId];
+        foreach (var cell in cells)
+        {
+            var checkCell =
+                await _context.MxCells.FirstOrDefaultAsync(c =>
+                    c.Id == cell.Id && c.MxGraphModelId == graph.MxGraphModelId);
+            if (checkCell != null)
+            {
+                continue;
+            }
+
+            var newCell = new MxCell()
+            {
+                MxGraphModelId = graph.MxGraphModelId,
+                Id = cell.Id,
+                Style = cell.Style,
+                Value = cell.Value ?? "",
+                IsEdge = cell.IsEdge ? 1 : 0,
+                IsVertex = cell.IsVertex ? 1 : 0,
+                ParentId = cell.ParentId,
+                SourceId = cell.SourceId,
+                TargetId = cell.TargetId,
+            };
+            var geometry = cell.Geometry;
+            var newGeometry = new MxGeometry()
+            {
+                MxCell = newCell,
+                MxCellId = newCell.MxCellId,
+                CellId = cell.Id,
+                As = "geometry",
+                X = geometry.X,
+                Y = geometry.Y,
+                Height = geometry.Height,
+                Width = geometry.Width,
+                Relative = geometry.Relative ? 1 : 0,
+            };
+            newCell.MxGeometry = newGeometry;
+            newCell.MxGeometryId = newGeometry.MxGeometryId;
+            if (geometry.SourcePoint != null || geometry.TargetPoint != null || geometry.Offset != null)
+            {
+                newGeometry.Position = new List<MxPoint>();
+                CreateNewPointIfExists(newGeometry, geometry.SourcePoint, "sourcePoint");
+                CreateNewPointIfExists(newGeometry, geometry.TargetPoint, "targetPoint");
+                CreateNewPointIfExists(newGeometry, geometry.Offset, "offset");
+            }
+
+            if (geometry.Points != null && geometry.Points.Count > 0)
+            {
+                newGeometry.Array = new MxArray()
+                {
+                    MxGeometry = newGeometry,
+                    MxGeometryId = newGeometry.MxGeometryId,
+                    As = "points"
+                };
+                foreach (var point in geometry.Points)
+                {
+                    var newPoint = new MxPoint()
+                    {
+                        MxArray = newGeometry.Array,
+                        MxArrayId = newGeometry.Array.MxArrayId,
+                        X = point.X,
+                        Y = point.Y
+                    };
+                    newGeometry.Array.MxPoints.Add(newPoint);
+                }
+            }
+
+            graph.Cells.Add(newCell);
+            await _context.MxCells.AddAsync(newCell);
+            //_context.Update(graph);
+            await _context.SaveChangesAsync();
+            if (cell.Children != null && cell.Children.Count > 0) CreateNewCells(cell.Children, roomId);
+        }
     }
-    
-    public async Task AddEdgeOnDiagram(string json)
+
+    public async Task AddCellsOnDiagram(string json, string roomId)
     {
-        await Clients.Others.SendAsync("AddEdgeOnDiagram",  json);
+        List<MxCellData> cells = JsonConvert.DeserializeObject<List<MxCellData>>(json);
+        await CreateNewCells(cells, roomId);
+        await Clients.OthersInGroup(roomId).SendAsync("AddCellsOnDiagram", json);
     }
-    public async Task MxGeometryChange(string json)
+
+    public async Task RemoveCells(string json, string roomId)
     {
-        //TODO: OtherInGroup
-        Geometry geometry = JsonConvert.DeserializeObject<Geometry>(json);
-        await Clients.Others.SendAsync("MxGeometryChange", json);
+        await Clients.OthersInGroup(roomId).SendAsync("RemoveCells", json);
     }
-    
-    public async Task MxTerminalChange(string json)
+
+    public async Task AddEdgeOnDiagram(string json, string roomId)
     {
-        //TODO: OtherInGroup
-        await Clients.Others.SendAsync("MxTerminalChange", json);
+        await Clients.OthersInGroup(roomId).SendAsync("AddEdgeOnDiagram", json);
+        MxCellData? cell = JsonConvert.DeserializeObject<MxCellData>(json);
+        if (cell != null)
+        {
+            await CreateNewCells(new List<MxCellData> { cell }, roomId);
+        }
     }
-    public async Task MxStyleChange(string json)
+
+    public async Task MxGeometryChange(string json, string roomId)
     {
-        //TODO: OtherInGroup
-        await Clients.Others.SendAsync("MxStyleChange", json);
+        MxGeometryData geometry = JsonConvert.DeserializeObject<MxGeometryData>(json);
+        var graph = RoomGraphModel[roomId];
+        var g_cell = graph.Cells.FirstOrDefault(c => c.Id == geometry.CellId);
+        if (g_cell != null)
+        {
+            var cell = await _context.MxCells
+                .Include(c => c.MxGeometry)
+                .ThenInclude(g => g.Array)
+                .ThenInclude(a => a.MxPoints)
+                .Include(c => c.MxGeometry)
+                .ThenInclude(g => g.Position)
+                .FirstOrDefaultAsync(c => c.MxCellId == g_cell.MxCellId);
+            var cellGeometry = cell.MxGeometry;
+            cellGeometry.X = geometry.X;
+            cellGeometry.Y = geometry.Y;
+            cellGeometry.Height = geometry.Height;
+            cellGeometry.Width = geometry.Width;
+            cellGeometry.Relative = geometry.Relative ? 1 : 0;
+            if (geometry.Points != null)
+            {
+                if (cellGeometry.Array == null)
+                {
+                    cellGeometry.Array = new MxArray
+                    {
+                        As = "points"
+                    };
+                    await _context.MxArrays.AddAsync(cellGeometry.Array);
+                }
+                else
+                {
+                    cellGeometry.Array.MxPoints.Clear();
+                    _context.Update(cellGeometry.Array);
+                }
+
+                foreach (var point in geometry.Points)
+                {
+                    var mxPoint = new MxPoint
+                    {
+                        X = point.X,
+                        Y = point.Y,
+                        MxArrayId = cellGeometry.Array.MxArrayId,
+                        MxArray = cellGeometry.Array
+                    };
+                    await _context.MxPoints.AddAsync(mxPoint);
+                    cellGeometry.Array.MxPoints.Add(mxPoint);
+                }
+            }
+
+
+            if (geometry.SourcePoint != null || geometry.TargetPoint != null || geometry.Offset != null)
+            {
+                if (cellGeometry.Position == null)
+                {
+                    cellGeometry.Position = new List<MxPoint>();
+                }
+                else
+                {
+                    cellGeometry.Position.Clear();
+                    _context.Update(cellGeometry);
+                }
+
+                var source = CreateNewPointIfExists(cellGeometry, geometry.SourcePoint, "sourcePoint");
+                if (source != null) await _context.MxPoints.AddAsync(source);
+                var target = CreateNewPointIfExists(cellGeometry, geometry.TargetPoint, "targetPoint");
+                if (target != null) await _context.MxPoints.AddAsync(target);
+                var offset = CreateNewPointIfExists(cellGeometry, geometry.Offset, "offset");
+                if (offset != null) await _context.MxPoints.AddAsync(offset);
+            }
+
+
+            _context.UpdateRange(cellGeometry);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+            }
+        }
+
+        await Clients.OthersInGroup(roomId).SendAsync("MxGeometryChange", json);
     }
-    public async Task MxValueChange(string json)
+
+    public async Task MxTerminalChange(string json, string roomId)
     {
-        //TODO: OtherInGroup
-        await Clients.Others.SendAsync("MxValueChange", json);
+        MxTerminalChangeData terminalChangeData = JsonConvert.DeserializeObject<MxTerminalChangeData>(json);
+        var graph = RoomGraphModel[roomId];
+        var g_cell = graph.Cells.FirstOrDefault(c => c.Id == terminalChangeData.CellId);
+        if (g_cell != null)
+        {
+            var cell = await _context.MxCells.FirstOrDefaultAsync(c =>
+                c.Id == g_cell.Id && c.MxGraphModelId == g_cell.MxGraphModelId);
+            if (terminalChangeData.Source)
+            {
+                cell.SourceId = terminalChangeData.TerminalId;
+            }
+            else
+            {
+                cell.TargetId = terminalChangeData.TerminalId;
+            }
+            _context.Update(cell);
+            await _context.SaveChangesAsync();
+        }
+
+        await Clients.OthersInGroup(roomId).SendAsync("MxTerminalChange", json);
     }
-    
-    public async Task MxChildChange(string json)
+
+    public async Task MxStyleChange(string json, string roomId)
     {
-        //TODO: OtherInGroup
-        await Clients.Others.SendAsync("MxChildChange", json);
+        var styleChangeData = JsonConvert.DeserializeObject<MxStyleChangeData>(json);
+        var graph = RoomGraphModel[roomId];
+        var g_cell = graph.Cells.FirstOrDefault(c => c.Id == styleChangeData.CellId);
+        if (g_cell != null)
+        {
+            var cell = await _context.MxCells.FirstOrDefaultAsync(c =>
+                c.Id == g_cell.Id && c.MxGraphModelId == g_cell.MxGraphModelId);
+            cell.Style = styleChangeData.Style;
+            //g_cell.Style = styleChangeData.Style;
+            _context.Update(cell);
+            await _context.SaveChangesAsync();
+        }
+
+        await Clients.OthersInGroup(roomId).SendAsync("MxStyleChange", json);
     }
-    public async Task MxCollapseChange(string json)
+
+    public async Task MxValueChange(string json, string roomId)
     {
-        //TODO: OtherInGroup
-        await Clients.Others.SendAsync("MxCollapseChange", json);
+        //TODO: 
+        await Clients.OthersInGroup(roomId).SendAsync("MxValueChange", json);
     }
-    
+
+    public async Task MxChildChange(string json, string roomId)
+    {
+        //TODO: 
+        await Clients.OthersInGroup(roomId).SendAsync("MxChildChange", json);
+    }
+
+    public async Task MxCollapseChange(string json, string roomId)
+    {
+        //TODO: 
+        await Clients.OthersInGroup(roomId).SendAsync("MxCollapseChange", json);
+    }
 }

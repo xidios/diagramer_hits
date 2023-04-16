@@ -151,7 +151,6 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
     this.currentEdgeStyle = mxUtils.clone(this.defaultEdgeStyle);
     this.currentVertexStyle = mxUtils.clone(this.defaultVertexStyle);
     this.standalone = (standalone != null) ? standalone : false;
-    this.signalRConnection = null;
     this.signalRCalls = null;
     // Sets the base domain URL and domain path URL for relative links.
     var b = this.baseUrl;
@@ -215,12 +214,9 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
             }
         }
     }
-    this.updateSignalRConnection = function (signalRConnection) {
-        this.signalRCalls = new SignalRCalls(this);
-        this.signalRConnection = signalRConnection;
-        this.model.updateSignalRConnection(signalRConnection);
-        mxGraph.updateSignalRConnection(signalRConnection);
-        this.signalRConnection.on("MxGeometryChange", (json) => {
+    this.updateSignalRConnection = function (signalRConnection,roomId) {
+        this.signalRCalls = new SignalRCalls(this,signalRConnection,roomId);
+        this.signalRCalls.signalRConnection.on("MxGeometryChange", (json) => {
             var data = JSON.parse(json);
             var model = this.model;
             var cell = model.getCell(data.cellId);
@@ -261,7 +257,7 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
 
         });
 
-        this.signalRConnection.on("MxTerminalChange", (json) => {
+        this.signalRCalls.signalRConnection.on("MxTerminalChange", (json) => {
             var data = JSON.parse(json);
             var model = this.model;
             var cell = model.getCell(data.cellId);
@@ -270,7 +266,7 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
             model.execute(change);
         });
 
-        this.signalRConnection.on("MxStyleChange", (json) => {
+        this.signalRCalls.signalRConnection.on("MxStyleChange", (json) => {
             var data = JSON.parse(json);
             var model = this.model;
             var cell = model.getCell(data.cellId);
@@ -278,7 +274,7 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
             model.execute(change);
         });
 
-        this.signalRConnection.on("MxChildChange", (json) => {
+        this.signalRCalls.signalRConnection.on("MxChildChange", (json) => {
             var data = JSON.parse(json);
             var model = this.model;
             var child = model.getCell(data.childId);
@@ -287,14 +283,14 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
             model.execute(change);
         });
 
-        this.signalRConnection.on("MxValueChange", (json) => {
+        this.signalRCalls.signalRConnection.on("MxValueChange", (json) => {
             var data = JSON.parse(json);
             var model = this.model;
             var cell = model.getCell(data.cellId);
             var change = new mxValueChange(model, cell, data.value, true);
             model.execute(change);
         });
-        this.signalRConnection.on("MxCollapseChange", (json) => {
+        this.signalRCalls.signalRConnection.on("MxCollapseChange", (json) => {
             var data = JSON.parse(json);
             var model = this.model;
             var cell = model.getCell(data.cellId);
@@ -304,16 +300,15 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
             }
         });
 
-        this.signalRConnection.on("AddCellsOnDiagram", (json) => {
-            var data = JSON.parse(json);
-            var cells = data.cells;
+        this.signalRCalls.signalRConnection.on("AddCellsOnDiagram", (json) => {
+            var cells = JSON.parse(json);
             var parent = this.getDefaultParent();
             for (var i = 0; i < cells.length; i++) {
                 this.createCellByData(cells[i], parent);
             }
             this.refresh();
         });
-        this.signalRConnection.on("RemoveCells", (json) => {
+        this.signalRCalls.signalRConnection.on("RemoveCells", (json) => {
             var data = JSON.parse(json);
             var cells = [];
             for (var i = 0; i < data.length; i++) {
@@ -322,20 +317,19 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
             this.removeCells(cells, undefined, true);
             this.refresh();
         });
-        this.signalRConnection.on("AddEdgeOnDiagram", (json) => {
+        this.signalRCalls.signalRConnection.on("AddEdgeOnDiagram", (json) => {
             var data = JSON.parse(json);
-            //value = value ? value : "";
-            var edge = new mxCell("", new mxGeometry(), data.edgeStyle);
+            var edge = new mxCell("", new mxGeometry(), data.style);
             edge.setEdge(true);
             var sourceCell = data.sourceId ? this.getModel().getCell(data.sourceId) : null;
             var targetCell = data.targetId ? this.getModel().getCell(data.targetId) : null;
-            edge.setId(data.edgeId);
+            edge.setId(data.cellId);
             edge.setTerminal(sourceCell, true);
             edge.setTerminal(targetCell, false);
             if (targetCell == null) {
-                edge.geometry.setTerminalPoint(new mxPoint(data.pointX, data.pointY), false);
+                edge.geometry.setTerminalPoint(new mxPoint(data.geometry.targetPoint.x, data.geometry.targetPoint.y), false);
             }
-            var parent = this.getDefaultParent();
+            var parent = this.getModel().getCell(data.parentId);
             this.getModel().beginUpdate(); // начинаем транзакцию модели
             try {
                 edge = this.addCell(edge, parent, undefined, undefined, undefined, true); // добавляем ячейку на граф, передавая родительский элемент

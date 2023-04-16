@@ -1,5 +1,7 @@
-SignalRCalls = function (graph) {
+SignalRCalls = function (graph, signalRConnection, roomId) {
     this.graph = graph;
+    this.signalRConnection = signalRConnection;
+    this.roomId = roomId;
 
     this.addSignalRCallsToModel = function () {
         this.model = this.graph.getModel();
@@ -23,7 +25,7 @@ SignalRCalls = function (graph) {
             var id = cells[i].getId()
             this.addCellsToData(cellData.children, cells[i].children)
             cellData.geometry = {
-                cellId : cells[i].id,
+                cellId: cells[i].id,
                 x: geometry.x,
                 y: geometry.y,
                 width: geometry.width,
@@ -33,9 +35,9 @@ SignalRCalls = function (graph) {
                     x: cells[i].geometry.offset.x,
                     y: cells[i].geometry.offset.y
                 } : null,
-                sourcePoint : geometry.sourcePoint ? {x: geometry.sourcePoint.x, y: geometry.sourcePoint.y} : null,
-                targetPoint : geometry.targetPoint ? {x: geometry.targetPoint.x, y: geometry.targetPoint.y} : null,
-                points : []
+                sourcePoint: geometry.sourcePoint ? {x: geometry.sourcePoint.x, y: geometry.sourcePoint.y} : null,
+                targetPoint: geometry.targetPoint ? {x: geometry.targetPoint.x, y: geometry.targetPoint.y} : null,
+                points: []
             };
             cellData.id = id;
             cellData.value = value;
@@ -64,15 +66,15 @@ SignalRCalls = function (graph) {
         var data = [];
         this.signalRCalls.addCellsToData(data, cells);
 
-        if (this.signalRCalls.graph.signalRConnection != null && data.length > 0) {
-            this.signalRCalls.graph.signalRConnection.invoke("AddCellsOnDiagram", JSON.stringify(data)).then(() => {
+        if (this.signalRCalls.signalRConnection != null && data.length > 0) {
+            this.signalRCalls.signalRConnection.invoke("AddCellsOnDiagram", JSON.stringify(data), this.signalRCalls.roomId).then(() => {
                 console.log("AddCellsOnDiagram send");
             });
         }
     });
     this.model.addListener(mxEvent.CHANGE, function (sender, evt) {
         var changes = evt.getProperty('edit').changes;
-        if (this.signalRCalls.graph.signalRConnection != null) {
+        if (this.signalRCalls.signalRConnection != null) {
             for (var i = 0; i < changes.length; i++) {
                 if (!changes[i].isSignalRCall) {
                     if (changes[i] instanceof mxGeometryChange) {
@@ -117,7 +119,7 @@ SignalRCalls = function (graph) {
                             }
                         }
 
-                        this.signalRCalls.graph.signalRConnection.invoke("MxGeometryChange", JSON.stringify(data)).then(() => {
+                        this.signalRCalls.signalRConnection.invoke("MxGeometryChange", JSON.stringify(data), this.signalRCalls.roomId).then(() => {
                             console.log("MxGeometryChange send");
                         });
                     } else if (changes[i] instanceof mxTerminalChange) {
@@ -129,7 +131,7 @@ SignalRCalls = function (graph) {
                         if (changes[i].previous == null && changes[i].terminal == null) {
                             continue
                         }
-                        this.signalRCalls.graph.signalRConnection.invoke("MxTerminalChange", JSON.stringify(data)).then(() => {
+                        this.signalRCalls.signalRConnection.invoke("MxTerminalChange", JSON.stringify(data), this.signalRCalls.roomId).then(() => {
                             console.log("MxTerminalChange send");
                         });
                     } else if (changes[i] instanceof mxStyleChange) {
@@ -137,16 +139,16 @@ SignalRCalls = function (graph) {
                             cellId: changes[i].cell.id,
                             style: changes[i].style
                         }
-                        this.signalRCalls.graph.signalRConnection.invoke("MxStyleChange", JSON.stringify(data)).then(() => {
+                        this.signalRCalls.signalRConnection.invoke("MxStyleChange", JSON.stringify(data), this.signalRCalls.roomId).then(() => {
                             console.log("MxStyleChangeChange send");
                         });
                     } else if (changes[i] instanceof mxChildChange) {
                         var data = {
                             childId: changes[i].child.id,
                             parentId: changes[i].parent ? changes[i].parent.id : null,
-                            index: changes[i].index ? changes[i].index : null
+                            index: changes[i].index
                         }
-                        this.signalRCalls.graph.signalRConnection.invoke("MxChildChange", JSON.stringify(data)).then(() => {
+                        this.signalRCalls.signalRConnection.invoke("MxChildChange", JSON.stringify(data), this.signalRCalls.roomId).then(() => {
                             console.log("MxChildChange send");
                         });
                     } else if (changes[i] instanceof mxValueChange) {
@@ -154,7 +156,7 @@ SignalRCalls = function (graph) {
                             cellId: changes[i].cell.id,
                             value: changes[i].value
                         }
-                        this.signalRCalls.graph.signalRConnection.invoke("MxValueChange", JSON.stringify(data)).then(() => {
+                        this.signalRCalls.signalRConnection.invoke("MxValueChange", JSON.stringify(data), this.signalRCalls.roomId).then(() => {
                             console.log("MxValueChange send");
                         });
                     } else if (changes[i] instanceof mxCollapseChange) {
@@ -163,7 +165,7 @@ SignalRCalls = function (graph) {
                             collapsed: changes[i].collapsed
 
                         }
-                        this.signalRCalls.graph.signalRConnection.invoke("MxCollapseChange", JSON.stringify(data)).then(() => {
+                        this.signalRCalls.signalRConnection.invoke("MxCollapseChange", JSON.stringify(data), this.signalRCalls.roomId).then(() => {
                             console.log("MxCollapseChange send");
                         });
                     }
@@ -177,15 +179,20 @@ SignalRCalls = function (graph) {
         var source = edge.source;
         var target = edge.target;
         var data = {
-            edgeId: edge.id,
-            edgeStyle: edge.style,
+            id: edge.id,
+            style: edge.style,
+            parentId: edge.parent.id,
             sourceId: source.id,
             targetId: target ? target.id : null,
-            pointX: target ? null : edge.geometry.targetPoint.x,
-            pointY: target ? null : edge.geometry.targetPoint.y
+            geometry: {
+                targetPoint: edge.geometry.targetPoint ? {x: edge.geometry.targetPoint.x, y: edge.geometry.targetPoint.y} : null
+            },
+            points : [],
+            isEdge : true,
+            value : edge.value
         }
-        if (this.signalRCalls.graph.signalRConnection != null) {
-            this.signalRCalls.graph.signalRConnection.invoke("AddEdgeOnDiagram", JSON.stringify(data)).then(() => {
+        if (this.signalRCalls.signalRConnection != null) {
+            this.signalRCalls.signalRConnection.invoke("AddEdgeOnDiagram", JSON.stringify(data), this.signalRCalls.roomId).then(() => {
                 console.log("AddEdgeOnDiagram");
             });
         }
