@@ -130,13 +130,21 @@ public class AnswerController : Controller
     [Route("send_to_review/{answerId:guid}")]
     public async Task<IActionResult> SubmitAnswerForReview(Guid answerId)
     {
-        var answer = await _context.Answers.FirstOrDefaultAsync(a => a.Id == answerId);
+        var answer = await _context.Answers
+            .Include(a=>a.TeacherDiagram)
+            .FirstOrDefaultAsync(a => a.Id == answerId);
         if (answer == null)
         {
             return NotFound("Answer not found");
         }
-
+        
         answer.Status = AnswerStatusEnum.Sent;
+        if (answer.TeacherDiagram != null)
+        {
+            _context.Remove(answer.TeacherDiagram);
+            answer.TeacherDiagram = null;
+        }
+        
         _context.Update(answer);
         await _context.SaveChangesAsync();
         return RedirectToAction("ViewTask", "Task", new { id = answer.TaskId });

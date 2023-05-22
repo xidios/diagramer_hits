@@ -56,10 +56,14 @@ public class SubjectController : Controller
             return NotFound("Пользователь не найден");
         }
 
-        if (!user.Subjects.Contains(subject))
+        if (!User.IsInRole("Admin") && !User.IsInRole("Teacher"))
         {
-            return StatusCode(StatusCodes.Status403Forbidden, "Пользователь не добавлен на данную дисциплину");
+            if (!user.Subjects.Contains(subject))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, "Пользователь не добавлен на данную дисциплину");
+            }
         }
+        
 
         if (subject == null)
         {

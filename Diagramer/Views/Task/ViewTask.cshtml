@@ -28,6 +28,7 @@
         }
 
     </div>
+
     <div class="container">
         <div class="row">
             <div class="col-md-12">
@@ -40,8 +41,9 @@
                 }
                 @if (@Model.Task.Deadline is not null)
                 {
-                    <h3>Срок сдачи до <u>@Model.Task.Deadline.ToString()</u></h3>
+                    <p>Срок сдачи до <u>@Model.Task.Deadline.ToString()</u></p>
                 }
+
                 @if (@Model.Task.Diagram is not null)
                 {
                     <a class="btn btn-primary" href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.Task.Diagram.Id, editable = false })'>Просмотреть диаграмму преподавателя</a>
@@ -79,7 +81,10 @@
                     <h3>Оценка: @Model.UserAnswer.Mark</h3>
                     <a class="btn btn-primary" href='@Url.RouteUrl("Diagrammer", new { diagramId = @Model.UserAnswer.StudentDiagram.Id, editable = false })'>Посмотреть диаграмму</a>
                 }
+
             </div>
         </div>
     </div>
+
+
 </div>

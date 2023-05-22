@@ -30,7 +30,7 @@
         <input name="Name" type="text" placeholder="Название" class="form-control" value="@Model.Name" required/>
     </p>
     <p>
-        <input name="Description" type="text" placeholder="Описание" class="form-control" value="@Model.Description" required/>
+        <textarea name="Description" type="text" placeholder="Описание задания" class="form-control"  required>@(@Model.Description == null ? "" : @Model.Description)</textarea>
     </p>
     <p>
         <label>Дедлайн</label><br/>

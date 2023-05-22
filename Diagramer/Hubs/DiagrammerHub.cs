@@ -20,9 +20,11 @@ namespace Diagramer.Hubs;
 public class DiagrammerHub : Hub
 {
     private ApplicationDbContext _context;
+
     private readonly IUserService _userService;
+
     //TODO: изменить
-    private static Dictionary<string, MxGraphModel> RoomGraphModel = new Dictionary<string, MxGraphModel>();
+    private static Dictionary<string, Guid> RoomGraphModel = new Dictionary<string, Guid>();
 
     public DiagrammerHub(ApplicationDbContext context, IUserService userService)
     {
@@ -44,16 +46,13 @@ public class DiagrammerHub : Hub
 
         if (!RoomGraphModel.ContainsKey(roomId))
         {
-            var graph = await _context.MxGraphModels
-                .Include(g => g.Cells)
-                .ThenInclude(c => c.MxGeometry)
-                .ThenInclude(g => g.Position)
-                .Include(g => g.Cells)
-                .ThenInclude(c => c.MxGeometry)
-                .ThenInclude(g => g.Array)
-                .ThenInclude(a => a.MxPoints)
-                .FirstOrDefaultAsync(g => g.RoomId == room.Id);
-            RoomGraphModel.Add(roomId, graph);
+            var graph = await _context.MxGraphModels.FirstOrDefaultAsync(g => g.RoomId == room.Id);
+            if (graph == null)
+            {
+                return;
+            }
+
+            RoomGraphModel.Add(roomId, graph.MxGraphModelId);
         }
 
         var hubConnection = new HubConnection
@@ -139,12 +138,12 @@ public class DiagrammerHub : Hub
 
     private async Task CreateNewCells(List<MxCellData> cells, string roomId)
     {
-        var graph = RoomGraphModel[roomId];
+        var graphId = RoomGraphModel[roomId];
         foreach (var cell in cells)
         {
             var checkCell =
                 await _context.MxCells.FirstOrDefaultAsync(c =>
-                    c.Id == cell.Id && c.MxGraphModelId == graph.MxGraphModelId);
+                    c.Id == cell.Id && c.MxGraphModelId == graphId);
             if (checkCell != null)
             {
                 continue;
@@ -152,7 +151,7 @@ public class DiagrammerHub : Hub
 
             var newCell = new MxCell()
             {
-                MxGraphModelId = graph.MxGraphModelId,
+                MxGraphModelId = graphId,
                 Id = cell.Id,
                 Style = cell.Style,
                 Value = cell.Value ?? "",
@@ -206,7 +205,6 @@ public class DiagrammerHub : Hub
                 }
             }
 
-            graph.Cells.Add(newCell);
             await _context.MxCells.AddAsync(newCell);
             //_context.Update(graph);
             await _context.SaveChangesAsync();
@@ -239,17 +237,17 @@ public class DiagrammerHub : Hub
     public async Task MxGeometryChange(string json, string roomId)
     {
         MxGeometryData geometry = JsonConvert.DeserializeObject<MxGeometryData>(json);
-        var graph = RoomGraphModel[roomId];
-        var g_cell = graph.Cells.FirstOrDefault(c => c.Id == geometry.CellId);
-        if (g_cell != null)
+        var graphId = RoomGraphModel[roomId];
+
+        var cell = await _context.MxCells
+            .Include(c => c.MxGeometry)
+            .ThenInclude(g => g.Array)
+            .ThenInclude(a => a.MxPoints)
+            .Include(c => c.MxGeometry)
+            .ThenInclude(g => g.Position)
+            .FirstOrDefaultAsync(c => c.Id == geometry.CellId && c.MxGraphModelId == graphId);
+        if (cell != null)
         {
-            var cell = await _context.MxCells
-                .Include(c => c.MxGeometry)
-                .ThenInclude(g => g.Array)
-                .ThenInclude(a => a.MxPoints)
-                .Include(c => c.MxGeometry)
-                .ThenInclude(g => g.Position)
-                .FirstOrDefaultAsync(c => c.MxCellId == g_cell.MxCellId);
             var cellGeometry = cell.MxGeometry;
             cellGeometry.X = geometry.X;
             cellGeometry.Y = geometry.Y;
@@ -324,12 +322,11 @@ public class DiagrammerHub : Hub
     public async Task MxTerminalChange(string json, string roomId)
     {
         MxTerminalChangeData terminalChangeData = JsonConvert.DeserializeObject<MxTerminalChangeData>(json);
-        var graph = RoomGraphModel[roomId];
-        var g_cell = graph.Cells.FirstOrDefault(c => c.Id == terminalChangeData.CellId);
-        if (g_cell != null)
+        var graphId = RoomGraphModel[roomId];
+        var cell = await _context.MxCells.FirstOrDefaultAsync(c =>
+            c.Id == terminalChangeData.CellId && c.MxGraphModelId == graphId);
+        if (cell != null)
         {
-            var cell = await _context.MxCells.FirstOrDefaultAsync(c =>
-                c.Id == g_cell.Id && c.MxGraphModelId == g_cell.MxGraphModelId);
             if (terminalChangeData.Source)
             {
                 cell.SourceId = terminalChangeData.TerminalId;
@@ -338,6 +335,7 @@ public class DiagrammerHub : Hub
             {
                 cell.TargetId = terminalChangeData.TerminalId;
             }
+
             _context.Update(cell);
             await _context.SaveChangesAsync();
         }
@@ -348,14 +346,12 @@ public class DiagrammerHub : Hub
     public async Task MxStyleChange(string json, string roomId)
     {
         var styleChangeData = JsonConvert.DeserializeObject<MxStyleChangeData>(json);
-        var graph = RoomGraphModel[roomId];
-        var g_cell = graph.Cells.FirstOrDefault(c => c.Id == styleChangeData.CellId);
-        if (g_cell != null)
+        var graphId = RoomGraphModel[roomId];
+        var cell = await _context.MxCells.FirstOrDefaultAsync(c =>
+            c.Id == styleChangeData.CellId && c.MxGraphModelId == graphId);
+        if (cell != null)
         {
-            var cell = await _context.MxCells.FirstOrDefaultAsync(c =>
-                c.Id == g_cell.Id && c.MxGraphModelId == g_cell.MxGraphModelId);
             cell.Style = styleChangeData.Style;
-            //g_cell.Style = styleChangeData.Style;
             _context.Update(cell);
             await _context.SaveChangesAsync();
         }
@@ -365,13 +361,35 @@ public class DiagrammerHub : Hub
 
     public async Task MxValueChange(string json, string roomId)
     {
-        //TODO: 
+        var valueChangeData = JsonConvert.DeserializeObject<MxValueChangeData>(json);
+        var graphId = RoomGraphModel[roomId];
+        var cell = await _context.MxCells.FirstOrDefaultAsync(c =>
+            c.Id == valueChangeData.CellId && c.MxGraphModelId == graphId);
+        if (cell != null)
+        {
+            cell.Value = valueChangeData.Value;
+            _context.Update(cell);
+            await _context.SaveChangesAsync();
+        }
         await Clients.OthersInGroup(roomId).SendAsync("MxValueChange", json);
     }
 
     public async Task MxChildChange(string json, string roomId)
     {
-        //TODO: 
+        var childChangeData = JsonConvert.DeserializeObject<MxChildChangeData>(json);
+        var graphId = RoomGraphModel[roomId];
+        var cell = await _context.MxCells.FirstOrDefaultAsync(c =>
+            c.Id == childChangeData.ChildId && c.MxGraphModelId == graphId);
+        if (cell != null)
+        {
+            if (childChangeData.ParentId == null)
+            {
+                _context.Remove(cell);
+            }
+            cell.ParentId = childChangeData.ParentId;
+            //TODO: cell index
+            await _context.SaveChangesAsync();
+        }
         await Clients.OthersInGroup(roomId).SendAsync("MxChildChange", json);
     }
 
