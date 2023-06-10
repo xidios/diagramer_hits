@@ -32,13 +32,8 @@ public class TaskController : Controller
 
     [HttpGet]
     [Route("create_task", Name = "CreateTask")]
-    public async Task<IActionResult> CreateTask(Guid subject_id)
+    public async Task<IActionResult> CreateTask(Guid? subject_id)
     {
-        if (subject_id == null)
-        {
-            return NotFound();
-        }
-
         return View(new CreateTaskViewModel
         {
             SubjectId = subject_id,
@@ -57,11 +52,16 @@ public class TaskController : Controller
 
         List<Category> categories =
             await _context.Categories.Where(c => model.CategoriesIds.Any(i => i == c.Id)).ToListAsync();
-        var subject = await _context.Subjects.FirstOrDefaultAsync(s => s.Id == model.SubjectId);
-        if (subject == null)
+        Subject? subject = null;
+        if (model.SubjectId != null)
         {
-            return NotFound("Subject not found");
+            subject = await _context.Subjects.FirstOrDefaultAsync(s => s.Id == model.SubjectId);
         }
+
+        // if (subject == null)
+        // {
+        //     return NotFound("Subject not found");
+        // }
 
         Diagram? diagram = null;
         if (model.Diagram is not null)
@@ -83,7 +83,10 @@ public class TaskController : Controller
             Categories = categories,
             IsGroupTask = model.IsGroupTask
         };
-        subject.Tasks.Add(task);
+        if (subject != null)
+        {
+            subject.Tasks.Add(task);
+        }
         if (diagram is not null)
         {
             await _context.Diagrams.AddAsync(diagram);
@@ -91,6 +94,10 @@ public class TaskController : Controller
 
         await _context.Tasks.AddAsync(task);
         await _context.SaveChangesAsync();
+        if (subject == null)
+        {
+            return RedirectToAction("Index", "Subject"); 
+        }
         return RedirectToAction("OpenSubject", "Subject", new { id = subject.Id });
     }
 

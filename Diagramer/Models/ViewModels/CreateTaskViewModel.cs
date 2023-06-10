@@ -3,7 +3,7 @@ namespace Diagramer.Models.ViewModels;
 public class CreateTaskViewModel
 {
     public List<Category> Categories { get; set; }
-    public Guid SubjectId { get; set; }
+    public Guid? SubjectId { get; set; }
     public List<Guid> CategoriesIds { get; set; } = new List<Guid>();
     public string Name { get; set; }
     public string Description { get; set; }
